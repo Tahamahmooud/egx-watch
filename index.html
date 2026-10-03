@@ -385,7 +385,7 @@ function sheetHTML(a){
     const dRes=((a.res/a.px-1)*100), dSup=((1-a.sup/a.px)*100);
     pts.push(`المقاومة ${fmt(a.res)} (+${dRes.toFixed(1)}%) والدعم ${fmt(a.sup)} (−${dSup.toFixed(1)}%).`);
   } else {
-    pts.push('مستويات الدعم والمقاومة تحتاج تاريخ الجلسات — شغّل worker.js لنشر ترويسة CORS.');
+    pts.push('مستويات الدعم والمقاومة غير متاحة حالياً.');
   }
   if(a.hi52!=null && a.lo52!=null) pts.push(`نطاق 52 أسبوعاً: ${fmt(a.lo52)} – ${fmt(a.hi52)}.`);
   return `<div class="sh-top">
@@ -486,8 +486,8 @@ async function load(){
   } else if(srcs.some(s=>s.includes('TradingView'))){
     const hist=DATA.filter(d=>d.closes.length).length;
     $('foot').textContent = (hist<DATA.length
-        ? 'الأسعار والمؤشرات من مباشر لحظياً. الرسوم البيانية تحتاج وسيط البيانات — شغّل worker.js لنشر الترويسة.'
-        : 'الأسعار والمؤشرات من مباشر لحظياً، والتاريخ من الوسيط.')
+        ? 'الأسعار والمؤشرات لحظية. الرسوم البيانية غير متاحة حالياً.'
+        : 'الأسعار والمؤشرات لحظية مع تاريخ الجلسات الكامل.')
       + ' تحليل آلي وليس نصيحة استثمارية.';
   } else {
     $('foot').textContent = 'تعذر جلب السعر اللحظي — البيانات المعروضة هي آخر إغلاق متاح. تحليل آلي وليس نصيحة استثمارية.';
