@@ -129,6 +129,19 @@ ul.pts{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.8}
       <button id="reload" type="button">تحديث</button>
     </div>
     <div class="sub" id="stamp"></div>
+    <div class="hrow" style="margin-top:10px">
+      <input id="q" type="search" placeholder="ابحث بالرمز أو الاسم…" autocomplete="off"
+        style="flex:1;min-width:140px;font-family:inherit;font-size:13px;color:var(--fg);
+        background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 11px">
+      <select id="sort" style="font-family:inherit;font-size:13px;color:var(--fg);
+        background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 11px">
+        <option value="default">ترتيب القائمة</option>
+        <option value="gain">الأعلى صعوداً</option>
+        <option value="lose">الأعلى هبوطاً</option>
+        <option value="vol">الأعلى حجماً</option>
+        <option value="name">الاسم</option>
+      </select>
+    </div>
   </header>
 
   <div class="list" id="list"></div>
@@ -164,11 +177,13 @@ async function fromTV(tk){
   return j;
 }
 
+/* الجلب الجماعي بقى المستخدم الأساسي — منTV بتفضل للاستخدام الفردي */
+
 /* جلب بمهلة محددة — الوسيط العام ممكن يعلّق دقيقة كاملة */
-async function fetchT(url, ms){
+async function fetchT(url, ms, opts){
   const ctl = new AbortController();
   const to = setTimeout(()=>ctl.abort(), ms);
-  try { return await fetch(url, {cache:'no-store', signal:ctl.signal}); }
+  try { return await fetch(url, Object.assign({cache:'no-store', signal:ctl.signal}, opts||{})); }
   finally { clearTimeout(to); }
 }
 
@@ -238,7 +253,7 @@ function merge(tk, tv, hist){
   if(vAvg&&hist.v[m-1]>vAvg*1.5) score+= px>c[m-2]?1:-1;
   return {tk, name:NAMES[tk]||'', px, chg:(tv&&tv.chg!=null)?tv.chg:(px/c[m-2]-1)*100,
     date:lastDate, closes:c, dates:hist.dt, s20,s50,s200,rsi,res,sup,
-    vol:hist.v[m-1], vAvg, src:(tv&&tv.src)||hist.src, score,
+    vol:hist.v[m-1], vAvg, src:(tv&&tv.src)||hist.src, en:tv&&tv.en, score,
     sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
 }
 
@@ -251,7 +266,7 @@ function build(tk, tv, hist){
     if(tv.s50&&tv.s200) score+= tv.s50>tv.s200?1:-1;
     if(tv.s20) score+= tv.px>tv.s20?1:-1;
     if(tv.rsi!=null) score+= tv.rsi>=55?1: tv.rsi<=45?-1:0;
-    return {tk, name:NAMES[tk]||'', px:tv.px, chg:tv.chg, date:tv.date||'',
+    return {tk, name:NAMES[tk]||'', px:tv.px, chg:tv.chg, date:tv.date||'', en:tv.en,
       closes:[], dates:[], s20:tv.s20, s50:tv.s50, s200:tv.s200, rsi:tv.rsi,
       res:null, sup:null, vol:tv.vol, vAvg:tv.vAvg, src:tv.src, score,
       sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
@@ -259,14 +274,66 @@ function build(tk, tv, hist){
   return analyse(hist&&hist.raw, tk);
 }
 const NAMES = {
-  'COMI':'التجاري الدولي','HRHO':'هيرميس','TMGH':'طلعت مصطفى','SWDY':'السويدي',
-  'ETEL':'المصرية للاتصالات','ABUK':'أبو قير للأسمدة','EFIH':'إي فاينانس','FWRY':'فوري',
-  'IRON':'الحديد والصلب','MASR':'مدينة مصر','ORAS':'أوراسكوم كونستراكشون','SKPC':'سيدي كرير',
-  'EAST':'الشرقية للدخان','ISPH':'ابن سينا فارما','CIEB':'كريدي أجريكول','QNBE':'بنك قطر الوطني',
-  'MFPC':'موبكو','JUFO':'جهينة','PHDC':'بالم هيلز','AMOC':'الإسكندرية للزيوت',
-  'ORWE':'النساجون الشرقيون','MTIE':'مجموعة إم إم','SUGR':'الدلتا للسكر','CANA':'القابضة المصرية الكويتية'
+'COMI':'التجاري الدولي','SWDY':'السويدي إليكتريك','ETEL':'المصرية للاتصالات','TMGH':'طلعت مصطفى',
+'EGAL':'مصر للألومنيوم','MFPC':'موبكو','QNBE':'بنك قطر الوطني','HDBK':'بنك التعمير والإسكان',
+'ABUK':'أبو قير للأسمدة','ALCN':'الإسكندرية لتداول الحاويات','ORAS':'أوراسكوم كونستراكشون','EAST':'الشرقية للدخان',
+'EFIH':'إي فاينانس','ADIB':'مصرف أبو ظبي الإسلامي','EMFD':'إعمار مصر','FWRY':'فوري',
+'SCTS':'قناة السويس لتوطين التكنولوجيا','CANA':'بنك قناة السويس','ORHD':'أوراسكوم للتنمية مصر','GPPL':'جولدن بيراميدز بلازا',
+'VLMR':'فالمور القابضة بالدولار','VLMRA':'فالمور القابضة بالجنيه','EFID':'إيديتا','PHDC':'بالم هيلز',
+'JUFO':'جهينة','HRHO':'إي إف جي القابضة - هيرميس','OCDI':'سوديك','GBCO':'جي بي كورب',
+'FAIT':'بنك فيصل الإسلامي بالجنيه','FAITA':'بنك فيصل الإسلامي بالدولار','FERC':'فيركيم مصر للأسمدة','BTFH':'بلتون القابضة',
+'CIEB':'كريدي أجريكول','HELI':'مصر الجديدة للإسكان','BIOC':'جلاكسو سميثكلاين','EXPA':'البنك المصري لتنمية الصادرات',
+'RAYA':'راية القابضة','CCAP':'القلعة للاستثمارات المالية','EGCH':'كيما','IRON':'الحديد والصلب المصرية',
+'ARCC':'العربية للأسمنت','VALU':'ڤاليو','CIRA':'سيرا للتعليم','TAQA':'طاقة عربية',
+'CLHO':'مستشفى كليوباترا','SCEM':'أسمنت سيناء','PHAR':'إيبيكو','MTIE':'إم إم جروب',
+'ORWE':'النساجون الشرقيون','POUL':'القاهرة للدواجن','SKPC':'سيدي كرير للبتروكيماويات','MCQE':'مصر للأسمنت قنا',
+'AMOC':'الإسكندرية للزيوت المعدنية','MOIL':'ماريدايف','UBEE':'المصرف المتحد','EGSA':'نايل سات',
+'EGTS':'المصرية للمنتجعات السياحية','EFIC':'المالية والصناعية المصرية','SAUD':'بنك البركة مصر','NIPH':'النيل للأدوية',
+'MASR':'مدينة مصر','MBSC':'مصر بني سويف للأسمنت','TALM':'تعليم لخدمات الإدارة','EGBE':'البنك المصري الخليجي',
+'KORA':'قرة إنرجي','MHOT':'مصر للفنادق','ATQA':'مصر الوطنية للصلب عتاقة','BINV':'بي إنفستمنتس القابضة',
+'ISPH':'ابن سينا فارما','CICH':'سي آي كابيتال','AMES':'الإسكندرية للخدمات الطبية','RMDA':'راميدا',
+'CSAG':'القناة للتوكيلات الملاحية','NAPR':'الوطنية للطباعة','OIH':'أوراسكوم للاستثمار القابضة','IFAP':'الدولية للمحاصيل الزراعية',
+'MIPH':'مينا فارم للأدوية','AMIA':'الملتقى العربي للاستثمارات','MOIN':'المهندس للتأمين','CPCI':'القاهرة للأدوية',
+'MPRC':'مدينة الإنتاج الإعلامي','OLFI':'عبور لاند','EGAS':'غاز مصر','PHTV':'بيراميزا للفنادق والقرى السياحية',
+'ISMQ':'الحديد والصلب للمناجم والمحاجر','MPCI':'ممفيس للأدوية','ZMID':'زهراء المعادي','PRDC':'بايونيرز بروبرتيز',
+'BONY':'بنيان للتنمية والتجارة','AXPH':'الإسكندرية للأدوية','SUGR':'الدلتا للسكر','DOMT':'دومتي',
+'GOUR':'جورميه مصر','SPHT':'الشمس بيراميدز للفنادق','ELEC':'الكابلات الكهربائية المصرية','SPIN':'الإسكندرية للغزل والنسيج',
+'NINH':'مستشفى النزهة الدولي','ARAB':'المطورون العرب القابضة','ACAP':'إيه كابيتال القابضة','OCPH':'أكتوبر فارما',
+'MCRO':'ماكرو جروب','AFMC':'مطاحن ومخابز الإسكندرية','ENGC':'أيكون','KABO':'كابو',
+'MICH':'مصر لصناعة الكيماويات','CNFN':'كونتكت المالية القابضة','SVCE':'جنوب الوادي للأسمنت','WCDF':'مطاحن وسط وغرب الدلتا',
+'GSSC':'العامة للصوامع والتخزين','DSCW':'دايس للملابس الجاهزة','SDTI':'شارم دريمز للاستثمار السياحي','SAIB':'بنك الشركة المصرفية العربية الدولية',
+'MFSC':'مصر للأسواق الحرة','OFH':'أو بي المالية القابضة','ACGC':'العربية لحليج الأقطان','AMER':'عامر جروب',
+'UNIT':'المتحدة للإسكان والتعمير','KZPC':'كفر الزيات للمبيدات والكيماويات','AJWA':'أجواء للصناعات الغذائية','GDWA':'جدوى للتنمية الصناعية',
+'UEFM':'مطاحن مصر العليا','CRST':'كريست مارك للمقاولات والتطوير العقاري','ADCI':'العربية للأدوية أدكو','ACTF':'أكت فاينانشال',
+'GPIM':'جي بي آي للنمو العمراني','ELKA':'القاهرة للإسكان والتعمير','ASCM':'أسيك للتعدين أسكوم','CFGH':'كونكريت فاشون جروب',
+'ALRA':'أطلس للاستثمار والصناعات الغذائية','ELSH':'الشمس للإسكان والتعمير','LCSW':'ليسيكو مصر','NAHO':'النعيم القابضة',
+'ICFC':'الدولية للأسمدة والكيماويات','INFI':'الإسماعيلية الوطنية للصناعات الغذائية','ZEOT':'الزيوت المستخلصة','MPCO':'المنصورة للدواجن',
+'ACAMD':'العربية لإدارة وتطوير الأصول','ATLC':'التوفيق للتأجير التمويلي','GTWL':'جولدن تكس للأصواف','EDFM':'مطاحن شرق الدلتا',
+'ETRS':'إيجيترانس نوسكو','ISMA':'الإسماعيلية مصر للدواجن','MAAL':'مرسيليا المصرية الخليجية','DAPH':'التعمير والاستشارات الهندسية',
+'NARE':'النعيم العقارية','SMFR':'سماد مصر إيجيفرت','CEFM':'مطاحن مصر الوسطى','PHGC':'بريميم هيلثكير جروب',
+'MILS':'مطاحن ومخابز شمال القاهرة','SNFC':'الشرقية الوطنية للأمن الغذائي','ICID':'الدولية للاستثمار والتنمية','GGRN':'جو جرين للاستثمار الزراعي',
+'IDRE':'الإسماعيلية للتطوير والتنمية العمرانية','NCCW':'النصر للأعمال المدنية','RACC':'راية لخدمات مراكز الاتصالات','ADPC':'آراب ديري باندا',
+'EALR':'العربية لاستصلاح الأراضي','KRDI':'نهر الخير للتنمية والاستثمار الزراعي','MOSC':'مصر للزيوت والصابون','EHDR':'المصريين للإسكان',
+'AALR':'العامة لاستصلاح الأراضي','ECAP':'العز للسيراميك والبورسلين الجوهرة','DTPP':'دلتا للطباعة والتغليف','WKOL':'وادي كوم أمبو لاستصلاح الأراضي',
+'CERA':'العربية للخزف ريماس','ODIN':'أودن للاستثمارات المالية','MENA':'مينا للاستثمار السياحي والعقاري','GGCC':'الجيزة العامة للمقاولات',
+'SCFM':'مطاحن جنوب القاهرة والجيزة','CAED':'القاهرة للخدمات التعليمية','ASPI':'أسباير كابيتال القابضة','DEIN':'الدلتا للتأمين',
+'MBEG':'إم بي للهندسة','PRCL':'العامة لمنتجات الخزف والصيني','SIPC':'سبأ الدولية للأدوية','LUTS':'لوتس للاستثمارات الزراعية',
+'NDRL':'الحفر الوطنية','IEEC':'المشروعات الصناعية والهندسية','AIHC':'العربية للاستثمارات القابضة','NHPS':'الوطنية للإسكان للنقابات المهنية',
+'SEIG':'السعودية المصرية للاستثمار بالجنيه','SEIGA':'السعودية المصرية للاستثمار بالدولار','UEGC':'الصعيد العامة للمقاولات','MEPA':'العبوات الطبية',
+'AIDC':'العربية للاستثمار والتنمية','GTEX':'جي تكس للاستثمارات التجارية والصناعية','OBRI':'العبور للاستثمار العقاري','ALUM':'الألومنيوم العربية',
+'COSG':'القاهرة للزيوت والصابون','TANM':'تنمية للاستثمار العقاري','POCO':'بورسعيد لتداول الحاويات','RREI':'العربية للاستثمار العقاري',
+'RUBX':'روبكس العالمية','AFDI':'الأهلي للتنمية والاستثمار','EBSC':'أصول إي إس بي للوساطة','RTVC':'رمكو لإنشاء القرى السياحية',
+'TWSA':'توسع للتخصيم','AMII':'العربية للصناعات المعدنية والاستثمارات الصناعية','UNIP':'يونيفرسال لصناعة مواد التعبئة','ICLE':'الدولية للتأجير التمويلي إنكوليس',
+'MEGM':'الشرق الأوسط لصناعة الزجاج','PRMH':'برايم القابضة','APSW':'العربية وبولفارا للغزل والنسيج','EASB':'ثمار لتداول الأوراق المالية',
+'ROTO':'رواد السياحة','MOED':'المصرية لنظم التعليم الحديثة','TYCN':'تايكون القابضة','SPMD':'سبيد ميديكال',
+'RAKT':'العامة لصناعة الورق راكتا','KWIN':'القاهرة الوطنية للاستثمار','EEII':'العربية للصناعات الهندسية','AREH':'المجموعة المصرية العقارية',
+'CCRS':'الخليجية الكندية للاستثمار العقاري','FCMD':'الدولية للصناعات الطبية إيكمي','EPCO':'المصرية للدواجن','GRCA':'جراند للاستثمار المالي',
+'GIHD':'الغربية الإسلامية للتنمية العمرانية','MMAT':'مرسى علم للتنمية السياحية','TRTO':'عبر المحيطات للسياحة','ELNA':'النصر لتصنيع الحاصلات الزراعية',
+'ELWA':'الوادي العالمية للاستثمار والتنمية','DGTZ':'ديجيتايز للاستثمار والتقنية','DCCC':'دمياط لتداول الحاويات','NEDA':'شمال الصعيد للتنمية والإنتاج الزراعي',
+'EPPK':'الأهرام للطباعة والتغليف','GMCI':'جي إم سي للاستثمارات','EOSB':'العروبة للسمسرة','CPME':'كاتليست بارتنرز',
+'COPR':'كوبر للاستثمار التجاري والتطوير العقاري'
 };
-const DEFAULT = ['COMI','HRHO','TMGH','SWDY','ETEL','ABUK','EFIH','FWRY','IRON','MASR','ORAS','SKPC'];
+const DEFAULT = ['COMI', 'SWDY', 'ETEL', 'TMGH', 'EGAL', 'MFPC', 'QNBE', 'HDBK', 'ABUK', 'ALCN', 'ORAS', 'EAST', 'EFIH', 'ADIB', 'EMFD', 'FWRY', 'SCTS', 'CANA', 'ORHD', 'GPPL', 'VLMR', 'VLMRA', 'EFID', 'PHDC', 'JUFO', 'HRHO', 'OCDI', 'GBCO', 'FAIT', 'FAITA', 'FERC', 'BTFH', 'CIEB', 'HELI', 'BIOC', 'EXPA', 'RAYA', 'CCAP', 'EGCH', 'IRON', 'ARCC', 'VALU', 'CIRA', 'TAQA', 'CLHO', 'SCEM', 'PHAR', 'MTIE', 'ORWE', 'POUL', 'SKPC', 'MCQE', 'AMOC', 'MOIL', 'UBEE', 'EGSA', 'EGTS', 'EFIC', 'SAUD', 'NIPH', 'MASR', 'MBSC', 'TALM', 'EGBE', 'KORA', 'MHOT', 'ATQA', 'BINV', 'ISPH', 'CICH', 'AMES', 'RMDA', 'CSAG', 'NAPR', 'OIH', 'IFAP', 'MIPH', 'AMIA', 'MOIN', 'CPCI', 'MPRC', 'OLFI', 'EGAS', 'PHTV', 'ISMQ', 'MPCI', 'ZMID', 'PRDC', 'BONY', 'AXPH', 'SUGR', 'DOMT', 'GOUR', 'SPHT', 'ELEC', 'SPIN', 'NINH', 'ARAB', 'ACAP', 'OCPH', 'MCRO', 'AFMC', 'ENGC', 'KABO', 'MICH', 'CNFN', 'SVCE', 'WCDF', 'GSSC', 'DSCW', 'SDTI', 'SAIB', 'MFSC', 'OFH', 'ACGC', 'AMER', 'UNIT', 'KZPC', 'AJWA', 'GDWA', 'UEFM', 'CRST', 'ADCI', 'ACTF', 'GPIM', 'ELKA', 'ASCM', 'CFGH', 'ALRA', 'ELSH', 'LCSW', 'NAHO', 'ICFC', 'INFI', 'ZEOT', 'MPCO', 'ACAMD', 'ATLC', 'GTWL', 'EDFM', 'ETRS', 'ISMA', 'MAAL', 'DAPH', 'NARE', 'SMFR', 'CEFM', 'PHGC', 'MILS', 'SNFC', 'ICID', 'GGRN', 'IDRE', 'NCCW', 'RACC', 'ADPC', 'EALR', 'KRDI', 'MOSC', 'EHDR', 'AALR', 'ECAP', 'DTPP', 'WKOL', 'CERA', 'ODIN', 'MENA', 'GGCC', 'SCFM', 'CAED', 'ASPI', 'DEIN', 'MBEG', 'PRCL', 'SIPC', 'LUTS', 'NDRL', 'IEEC', 'AIHC', 'NHPS', 'SEIG', 'SEIGA', 'UEGC', 'MEPA', 'AIDC', 'GTEX', 'OBRI', 'ALUM', 'COSG', 'TANM', 'POCO', 'RREI', 'RUBX', 'AFDI', 'EBSC', 'RTVC', 'TWSA', 'AMII', 'UNIP', 'ICLE', 'MEGM', 'PRMH', 'APSW', 'EASB', 'ROTO', 'MOED', 'TYCN', 'SPMD', 'RAKT', 'KWIN', 'EEII', 'AREH', 'CCRS', 'FCMD', 'EPCO', 'GRCA', 'GIHD', 'MMAT', 'TRTO', 'ELNA', 'ELWA', 'DGTZ', 'DCCC', 'NEDA', 'EPPK', 'GMCI', 'EOSB', 'CPME', 'COPR'];
 let SYMS = DEFAULT.slice();
 try { const s = localStorage.getItem('egx.watch'); if (s) SYMS = JSON.parse(s); } catch(e){}
 
@@ -365,10 +432,19 @@ function chart(a){
 
 /* ---------- عرض ---------- */
 function rowHTML(a){
+  if(a.noData){
+    return `<button class="row" data-tk="${a.tk}" type="button" disabled style="opacity:.55;cursor:default">
+      <span class="nm"><span class="tk">${a.tk}</span> <span class="co">${NAMES[a.tk]||''}</span>
+        <span class="tag t-mid" title="الرمز مش مغطى في المصدر الحالي">بلا بيانات</span></span>
+      <span></span>
+      <span><span class="px flat">—</span><span class="ch flat">—</span></span>
+    </button>`;
+  }
   const k=cls(a.chg);
   return `<button class="row" data-tk="${a.tk}" type="button">
-    <span class="nm"><span class="tk">${a.tk}</span> <span class="co">${a.name}</span>
-      <span class="tag ${a.sig==='إيجابي'?'t-buy':a.sig==='سلبي'?'t-sell':'t-mid'}">${a.sig}</span></span>
+    <span class="nm"><span class="tk">${a.tk}</span> <span class="co">${a.name||NAMES[a.tk]||''}</span>
+      <span class="tag ${a.sig==='إيجابي'?'t-buy':a.sig==='سلبي'?'t-sell':'t-mid'}"
+        title="إشارة فنية من المتوسطات و RSI والحجم — مش تغيّر اليوم">${a.sig}</span></span>
     ${spark(a.closes)}
     <span><span class="px ${k}">${fmt(a.px)}</span><span class="ch ${k}">${pct(a.chg)}</span></span>
   </button>`;
@@ -412,18 +488,35 @@ function sheetHTML(a){
     <div style="display:flex;gap:8px;margin-top:14px"><button id="close" type="button">إغلاق</button></div>`;
 }
 
-/* ---------- تحميل ---------- */
-let DATA=[];
+/* ---------- تحميل ----------
+   مباشر (TradingView): طلب واحد بيرجّع السوق كله — ٢٢٩ سهم مرة واحدة.
+   بنستخدم content-type: text/plain عشان الطلب يفضل «بسيط» من غير
+   preflight، ودي الطريقة الوحيدة اللي بتشتغل من المتصفح.            */
+const TV_SCAN = 'https://scanner.tradingview.com/egypt/scan';
+const TV_COLS = ['close','change','RSI','SMA20','SMA50','SMA200','volume','average_volume_10d_calc',
+                 'price_52_week_high','price_52_week_low','description','type'];
 
-/* مصدر مباشر (TradingView): السعر والقراءات الفنية — بيشتغل من المتصفح */
-function tvItem(tk, j){
-  const px=j.close, chg=j.change;
-  return {tk, px, chg,
+async function fetchMarket(){
+  const body = JSON.stringify({
+    symbols: { tickers: SYMS.map(t=>'EGX:'+t), query: { types: [] } },
+    columns: TV_COLS,
+  });
+  const r = await fetchT(TV_SCAN, 20000, {method:'POST', headers:{'Content-Type':'text/plain'}, body});
+  if(!r.ok) throw new Error('scan '+r.status);
+  const j = await r.json();
+  if(!j || !j.data) throw new Error('scan empty');
+  return j.data;
+}
+
+function tvItem(tk, d){
+  const v = {};
+  TV_COLS.forEach((c,i)=>{ v[c]=d[i]; });
+  return {tk, px:v.close, chg:v.change,
     date:new Date(Date.now()+3*3600000).toISOString().slice(0,10),
-    s20:j.SMA20, s50:j.SMA50, s200:j.SMA200, rsi:j.RSI,
-    vol:j.volume, vAvg:j.average_volume_10d_calc,
-    hi52:j.price_52_week_high, lo52:j.price_52_week_low,
-    src:'مباشر (TradingView)'};
+    s20:v.SMA20, s50:v.SMA50, s200:v.SMA200, rsi:v.RSI,
+    vol:v.volume, vAvg:v.average_volume_10d_calc,
+    hi52:v.price_52_week_high, lo52:v.price_52_week_low,
+    en:v.description, src:'مباشر (TradingView)'};
 }
 
 /* مصدر التاريخ: الوسيط على كلاودفلير — ممكن يتحجب لغياب CORS.
@@ -431,9 +524,8 @@ function tvItem(tk, j){
 let HIST_MODE = null;   // 'direct' | 'mirror' | 'off'
 
 async function probeHistory(){
-  const t = Date.now();
   try{
-    const r = await fetchT(`${WORKER}/COMI.CA?range=1y&interval=1d&t=${t}`, 6000);
+    const r = await fetchT(`${WORKER}/COMI.CA?range=1y&interval=1d&t=${Date.now()}`, 6000);
     if(r.ok){ await r.json(); HIST_MODE='direct'; return; }
   }catch(e){}
   try{
@@ -458,36 +550,46 @@ async function history(tk){
   }catch(e){ return null; }
 }
 
-async function one(tk){
-  const [tv, hist] = await Promise.all([
-    fromTV(tk).then(j=>tvItem(tk,j)).catch(()=>null),
-    history(tk),
-  ]);
-  return build(tk, tv, hist);
+/* تفاصيل سهم واحد عند الطلب — مش بنجيب تاريخ ٢٢٩ سهم مقدماً */
+async function loadHistory(tk){
+  const h = await history(tk);
+  if(!h) return;
+  const i = DATA.findIndex(d=>d.tk===tk);
+  if(i<0) return;
+  const base = DATA[i];
+  const merged = build(tk, base, h);
+  merged.en = base.en;
+  DATA[i] = merged;
+  if($('dlg').open) $('sheet').innerHTML = sheetHTML(merged);
+  render();
 }
 
 async function load(){
   paintStatus();
-  $('list').innerHTML = SYMS.map(()=>'<div class="skel"></div>').join('');
+  $('list').innerHTML = '<div class="skel"></div>'.repeat(8);
   $('foot').textContent='';
-  const out=[];
-  for(let i=0;i<SYMS.length;i+=3){
-    const part=await Promise.all(SYMS.slice(i,i+3).map(one));
-    part.forEach(p=>{ if(p) out.push(p); });
-    DATA=out.slice();
-    render();
-    stampLine(false);
+  try{
+    const rows = await fetchMarket();
+    const bySym = {};
+    rows.forEach(d=>{ bySym[d.s.replace('EGX:','')] = d; });
+    DATA = SYMS.filter(t=>bySym[t]).map(t=>build(t, tvItem(t, bySym[t].d), null));
+    // الرموز اللي المنصة مش بتغطيها — تفضل في القائمة بعلامة «—»
+    const missing = SYMS.filter(t=>!bySym[t]);
+    missing.forEach(t=>DATA.push({tk:t, name:'', px:null, chg:null, date:'',
+      closes:[], dates:[], s20:null,s50:null,s200:null,rsi:null,res:null,sup:null,
+      vol:null, vAvg:null, src:'—', score:0, sig:'محايد', noData:true}));
+  }catch(e){
+    DATA=[];
   }
+  render();
   stampLine(true);
-  if (typeof checkAlerts === 'function') checkAlerts(DATA);
-  const srcs=[...new Set(DATA.map(d=>d.src))];
-  if(DATA.length===0){
+  if (typeof checkAlerts === 'function') checkAlerts(DATA.filter(d=>!d.noData));
+  const srcs=[...new Set(DATA.filter(d=>!d.noData).map(d=>d.src))];
+  const live=DATA.filter(d=>!d.noData).length;
+  if(live===0){
     $('foot').textContent = 'تعذر تحميل البيانات — راجع الاتصال بالإنترنت ثم اضغط تحديث.';
   } else if(srcs.some(s=>s.includes('TradingView'))){
-    const hist=DATA.filter(d=>d.closes.length).length;
-    $('foot').textContent = (hist<DATA.length
-        ? 'الأسعار والمؤشرات لحظية. الرسوم البيانية غير متاحة حالياً.'
-        : 'الأسعار والمؤشرات لحظية مع تاريخ الجلسات الكامل.')
+    $('foot').textContent = 'الأسعار والمؤشرات لحظية مع تأخير بسيط. اضغط على أي سهم للتفاصيل.'
       + ' تحليل آلي وليس نصيحة استثمارية.';
   } else {
     $('foot').textContent = 'تعذر جلب السعر اللحظي — البيانات المعروضة هي آخر إغلاق متاح. تحليل آلي وليس نصيحة استثمارية.';
@@ -497,26 +599,68 @@ async function load(){
 /* سطر الحالة — بيتحدّث بعد كل دفعة، وبيحذّر لو البيانات قديمة */
 function stampLine(done){
   const t=new Date(Date.now()+3*3600000).toISOString().slice(11,16);
-  const ages=DATA.map(d=>Math.round((Date.now()-Date.parse(d.date))/86400000)).filter(n=>isFinite(n));
+  const live=DATA.filter(d=>!d.noData);
+  const ages=live.map(d=>Math.round((Date.now()-Date.parse(d.date))/86400000)).filter(n=>isFinite(n));
   const fresh=ages.length?Math.min(...ages):null;
   const stale=fresh!=null&&fresh>3;
-  $('stamp').textContent = `آخر تحديث ${t} بتوقيت القاهرة · ${DATA.length} من ${SYMS.length} سهم`
-    + (done?'':' …')
+  const miss=DATA.length-live.length;
+  $('stamp').textContent = `آخر تحديث ${t} بتوقيت القاهرة · ${live.length} من ${DATA.length} سهم`
+    + (miss?` (${miss} بلا بيانات)`:'')
     + (stale?` · آخر جلسة قبل ${fresh} يوم`:'');
   if(stale && done){
     $('foot').textContent = `تحذير: أحدث جلسة متاحة قبل ${fresh} يوم — قد تكون البيانات متأخرة. تحليل آلي وليس نصيحة استثمارية.`;
   }
 }
-function render(){
-  const order=SYMS.map(t=>DATA.find(d=>d.tk===t)).filter(Boolean);
-  $('list').innerHTML = order.map(rowHTML).join('')
-    + SYMS.slice(order.length).map(()=>'<div class="skel"></div>').join('');
+
+/* ---------- بحث وترتيب ---------- */
+let QUERY='', SORT='default';
+
+/* تطبيع النص العربي: الألف والتاء المربوطة والياء والهمزات والتشكيل */
+function norm(s){
+  return (s||'')
+    .replace(/[\u064B-\u0652\u0640]/g,'')      // تشكيل وتطويل
+    .replace(/[أإآٱ]/g,'ا')
+    .replace(/ى/g,'ي')
+    .replace(/ة/g,'ه')
+    .replace(/ؤ/g,'و')
+    .replace(/ئ/g,'ي')
+    .replace(/\s+/g,' ')
+    .trim()
+    .toLowerCase();
 }
 
+function visible(){
+  const raw=QUERY.trim();
+  const q=norm(raw);
+  let arr=DATA.slice();
+  if(q) arr=arr.filter(d=>
+    d.tk.toLowerCase().includes(q) ||
+    norm(NAMES[d.tk]).includes(q) ||
+    norm(d.en).includes(q));
+  if(SORT==='gain') arr.sort((a,b)=>(b.chg??-999)-(a.chg??-999));
+  else if(SORT==='lose') arr.sort((a,b)=>(a.chg??999)-(b.chg??999));
+  else if(SORT==='vol') arr.sort((a,b)=>(b.vol??-1)-(a.vol??-1));
+  else if(SORT==='name') arr.sort((a,b)=>norm(NAMES[a.tk]||a.tk).localeCompare(norm(NAMES[b.tk]||b.tk),'ar'));
+  return arr;
+}
+function render(){
+  const arr=visible();
+  const MAX=120;
+  const shown=arr.slice(0,MAX);
+  $('list').innerHTML = shown.map(rowHTML).join('')
+    + (arr.length>MAX ? `<p class="note">بيظهر أول ${MAX} سهم من ${arr.length} — استخدم البحث للوصول لباقي السوق.</p>` : '')
+    + (arr.length===0 ? '<p class="note">مفيش نتائج مطابقة للبحث.</p>' : '');
+}
+
+$('q').addEventListener('input', e=>{ QUERY=e.target.value; render(); });
+$('sort').addEventListener('change', e=>{ SORT=e.target.value; render(); });
+
 $('list').addEventListener('click',e=>{
-  const b=e.target.closest('.row'); if(!b) return;
+  const b=e.target.closest('.row'); if(!b || b.disabled) return;
   const a=DATA.find(d=>d.tk===b.dataset.tk); if(!a) return;
   $('sheet').innerHTML=sheetHTML(a); $('dlg').showModal();
+  // نجيب تاريخ الجلسات عند الطلب بس (للرسم والدعم والمقاومة)
+  if(!a.closes.length) loadHistory(a.tk);
 });
 $('dlg').addEventListener('click',e=>{ if(e.target.id==='close'||e.target===$('dlg')) $('dlg').close(); });
 $('reload').addEventListener('click',load);
