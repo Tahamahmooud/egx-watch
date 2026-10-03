@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مؤشر">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="متابعة أسهم البورصة المصرية بالأسعار والمؤشرات الفنية وحالة الجلسة">
+<title>مؤشر البورصة المصرية</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+html{color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<style>
+/* التخطيط: شريط حالة ثابت فوق قائمة أسهم كثيفة — الضغط على سهم يفتح تفاصيله */
+:root{
+  --bg:#f6f4ef; --surface:#fffefb; --surface-2:#efebe2; --line:#e0dacd;
+  --fg:#1b1813; --dim:#6d6558; --accent:#9a6f10;
+  --up:#0d7a4a; --down:#b6342a; --flat:#7a7264;
+  --shadow:0 1px 2px rgba(40,32,16,.06),0 8px 24px rgba(40,32,16,.05);
+  --f-ui:"IBM Plex Sans Arabic",system-ui,"Segoe UI",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121110; --surface:#1b1917; --surface-2:#24211d; --line:#2f2b25;
+  --fg:#f1ece2; --dim:#9b9285; --accent:#d9ab4a;
+  --up:#3ccf8e; --down:#ff6f61; --flat:#8c8478;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121110; --surface:#1b1917; --surface-2:#24211d; --line:#2f2b25;
+  --fg:#f1ece2; --dim:#9b9285; --accent:#d9ab4a;
+  --up:#3ccf8e; --down:#ff6f61; --flat:#8c8478;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);margin:0;line-height:1.5}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px;padding-block:0 32px}
+[dir=rtl]{direction:rtl}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:12px 16px}
+.hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em}
+.sub{font-size:12px;color:var(--dim);font-family:var(--f-num)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--flat)}
+.pill.open .dot{background:var(--up);box-shadow:0 0 0 3px color-mix(in srgb,var(--up) 25%,transparent)}
+.pill.shut .dot{background:var(--down)}
+.spacer{flex:1}
+button{font-family:inherit;font-size:13px;color:var(--fg);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 72px auto;gap:12px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  cursor:pointer;text-align:start;width:100%;box-shadow:var(--shadow)}
+.row:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.nm{min-width:0}
+.tk{font-family:var(--f-num);font-size:13px;font-weight:600;color:var(--accent)}
+.co{font-size:13px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.px{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:16px;font-weight:600;text-align:end}
+.ch{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:12px;text-align:end;display:block}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.spark{width:68px;height:30px;display:block}
+.tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;display:inline-block;margin-top:3px}
+.t-buy{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}
+.t-sell{background:color-mix(in srgb,var(--down) 16%,transparent);color:var(--down)}
+.t-mid{background:var(--surface-2);color:var(--dim)}
+
+.note{font-size:12px;color:var(--dim);margin:14px 2px 0;line-height:1.7}
+.skel{height:62px;border-radius:12px;background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%);
+  background-size:400% 100%;animation:sh 1.4s infinite}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+dialog{border:none;padding:0;background:transparent;max-width:min(680px,100%);width:100%}
+dialog::backdrop{background:rgba(10,8,4,.55)}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;
+  box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+.sh-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.big{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:30px;font-weight:600;line-height:1.1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin:16px 0}
+.cell{background:var(--surface-2);border-radius:10px;padding:9px 11px;min-width:0}
+.cell b{display:block;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;margin-top:2px}
+.cell span{font-size:11px;color:var(--dim)}
+.chart{width:100%;height:auto;display:block;margin:6px 0 2px}
+.lg{display:flex;gap:14px;font-size:11px;color:var(--dim);flex-wrap:wrap}
+.lg i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-inline-end:4px}
+h3{font-size:13px;font-weight:600;margin:18px 0 8px;color:var(--dim);letter-spacing:.02em}
+.bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--surface-2);margin:6px 0}
+ul.pts{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.8}
+</style>
+<style>
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#install,#notify{display:none}
+#install.on,#notify.on{display:inline-block}
+#notify.active{border-color:var(--up);color:var(--up)}
+.banner{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div dir="rtl">
+<div class="wrap">
+  <header>
+    <div class="hrow">
+      <h1>مؤشر البورصة المصرية</h1>
+      <span id="status" class="pill"><span class="dot"></span><span id="statusTxt">جارٍ التحميل…</span></span>
+      <span class="spacer"></span>
+      <button id="reload" type="button">تحديث</button>
+    </div>
+    <div class="sub" id="stamp"></div>
+  </header>
+
+  <div class="list" id="list"></div>
+
+  <p class="note" id="foot"></p>
+</div>
+</div>
+
+<dialog id="dlg"><div class="sheet" id="sheet"></div></dialog>
+
+<script>
+const WORKER = 'https://egx-data.tahamahm3.workers.dev';
+/* وسيط عام اختياري: يعمل من المتصفح لغياب ترويسة CORS من الوسيط الأصلي */
+const MIRROR = 'https://api.allorigins.win/raw?url=';
+const buildURL = (tk) => {
+  const q = `${WORKER}/${tk}.CA?range=1y&interval=1d&t=${Date.now()}`;
+  return MIRROR + encodeURIComponent(q);
+};
+
+/* ---------- المصادر ----------
+   مباشر (TradingView): سعر لحظي + RSI + المتوسطات، ومرسلة بترويسة CORS
+   فبتشتغل من المتصفح على طول ومن غير أي وسيط.
+   الوسيط على كلاودفلير: بيدّي تاريخ الجلسات للرسم البياني.        */
+const TV = 'https://scanner.tradingview.com/symbol?symbol=EGX%3A';
+const TV_FIELDS = 'close,change,change_abs,RSI,SMA20,SMA50,SMA200,volume,average_volume_10d_calc,'
+                + 'price_52_week_high,price_52_week_low,description';
+
+async function fromTV(tk){
+  const r = await fetchT(`${TV}${tk}&fields=${TV_FIELDS}&no_404=true`, 8000);
+  if(!r.ok) throw new Error('tv '+r.status);
+  const j = await r.json();
+  if(j.close==null) throw new Error('tv empty');
+  return j;
+}
+
+/* جلب بمهلة محددة — الوسيط العام ممكن يعلّق دقيقة كاملة */
+async function fetchT(url, ms){
+  const ctl = new AbortController();
+  const to = setTimeout(()=>ctl.abort(), ms);
+  try { return await fetch(url, {cache:'no-store', signal:ctl.signal}); }
+  finally { clearTimeout(to); }
+}
+
+/* تحويل رد الوسيط (صيغة ياهو) لمصفوفات الإغلاق/التاريخ/الحجم */
+function parseHistory(j){
+  const r=j&&j.chart&&j.chart.result&&j.chart.result[0];
+  if(!r||!r.timestamp) return null;
+  const q=r.indicators.quote[0], c=[],h=[],l=[],v=[],dt=[];
+  for(let i=0;i<r.timestamp.length;i++){
+    if(q.close[i]==null) continue;
+    c.push(q.close[i]); h.push(q.high[i]??q.close[i]); l.push(q.low[i]??q.close[i]);
+    v.push(q.volume[i]||0); dt.push(new Date(r.timestamp[i]*1000).toISOString().slice(0,10));
+  }
+  if(c.length<25) return null;
+  return {c,h,l,v,dt,src:(r.meta&&r.meta.dataSource)||'Yahoo'};
+}
+
+function analyse(j,tk){
+  const r=j&&j.chart&&j.chart.result&&j.chart.result[0];
+  if(!r||!r.timestamp) return null;
+  const q=r.indicators.quote[0], c=[],h=[],l=[],v=[],dt=[];
+  for(let i=0;i<r.timestamp.length;i++){
+    if(q.close[i]==null) continue;
+    c.push(q.close[i]); h.push(q.high[i]??q.close[i]); l.push(q.low[i]??q.close[i]);
+    v.push(q.volume[i]||0); dt.push(new Date(r.timestamp[i]*1000).toISOString().slice(0,10));
+  }
+  if(c.length<25) return null;
+  const n=c.length, px=c[n-1], prev=c[n-2];
+  const s20=SMA(c,20), s50=SMA(c,50), s200=SMA(c,200), rsi=RSI(c);
+  const w=Math.min(60,n-1);
+  const res=Math.max(...h.slice(-w-1,-1)), sup=Math.min(...l.slice(-w-1,-1));
+  const vAvg=SMA(v,20);
+  let score=0;
+  if(s50&&s200) score+= s50>s200?1:-1;
+  if(s20) score+= px>s20?1:-1;
+  if(rsi!=null) score+= rsi>=55?1: rsi<=45?-1:0;
+  if(vAvg&&v[n-1]>vAvg*1.5) score+= px>prev?1:-1;
+  return {tk, name:NAMES[tk]||'', px, chg:(px/prev-1)*100, date:dt[n-1],
+    closes:c, dates:dt, s20,s50,s200,rsi,res,sup, vol:v[n-1], vAvg,
+    src:r.meta.dataSource||'Yahoo', score,
+    sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
+}
+
+/* دمج: القيم الفنية من مباشر (أحدث) مع تاريخ الجلسات من الوسيط (للرسم) */
+function merge(tk, tv, hist){
+  const c=hist.c.slice(), n=c.length;
+  const lastDate = tv && tv.date ? tv.date : hist.dt[n-1];
+  // لو الجلسة اللحظية أحدث من آخر جلسة في التاريخ، نضيفها كنقطة أخيرة
+  if(tv && tv.date && tv.date > hist.dt[n-1]){
+    c.push(tv.px); hist.dt.push(tv.date); hist.v.push(tv.vol||0);
+  } else if(tv){
+    c[n-1]=tv.px; hist.v[n-1]=tv.vol||hist.v[n-1];
+  }
+  const m=c.length, px=c[m-1];
+  const s20 = tv&&tv.s20!=null ? tv.s20 : SMA(c,20);
+  const s50 = tv&&tv.s50!=null ? tv.s50 : SMA(c,50);
+  const s200= tv&&tv.s200!=null ? tv.s200 : SMA(c,200);
+  const rsi = tv&&tv.rsi!=null ? tv.rsi : RSI(c);
+  const vAvg = tv&&tv.vAvg!=null ? tv.vAvg : SMA(hist.v,20);
+  const w=Math.min(60,m-1);
+  const res = Math.max(...hist.h.slice(-w-1,-1));
+  const sup = Math.min(...hist.l.slice(-w-1,-1));
+  let score=0;
+  if(s50&&s200) score+= s50>s200?1:-1;
+  if(s20) score+= px>s20?1:-1;
+  if(rsi!=null) score+= rsi>=55?1: rsi<=45?-1:0;
+  if(vAvg&&hist.v[m-1]>vAvg*1.5) score+= px>c[m-2]?1:-1;
+  return {tk, name:NAMES[tk]||'', px, chg:(tv&&tv.chg!=null)?tv.chg:(px/c[m-2]-1)*100,
+    date:lastDate, closes:c, dates:hist.dt, s20,s50,s200,rsi,res,sup,
+    vol:hist.v[m-1], vAvg, src:(tv&&tv.src)||hist.src, score,
+    sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
+}
+
+/* بناء عنصر واحد من ردود المصدرين */
+function build(tk, tv, hist){
+  if(tv && hist) return merge(tk, tv, hist);
+  if(tv){
+    // مفيش تاريخ: القيم الفنية موجودة، والرسم غايب
+    let score=0;
+    if(tv.s50&&tv.s200) score+= tv.s50>tv.s200?1:-1;
+    if(tv.s20) score+= tv.px>tv.s20?1:-1;
+    if(tv.rsi!=null) score+= tv.rsi>=55?1: tv.rsi<=45?-1:0;
+    return {tk, name:NAMES[tk]||'', px:tv.px, chg:tv.chg, date:tv.date||'',
+      closes:[], dates:[], s20:tv.s20, s50:tv.s50, s200:tv.s200, rsi:tv.rsi,
+      res:null, sup:null, vol:tv.vol, vAvg:tv.vAvg, src:tv.src, score,
+      sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
+  }
+  return analyse(hist&&hist.raw, tk);
+}
+const NAMES = {
+  'COMI':'التجاري الدولي','HRHO':'هيرميس','TMGH':'طلعت مصطفى','SWDY':'السويدي',
+  'ETEL':'المصرية للاتصالات','ABUK':'أبو قير للأسمدة','EFIH':'إي فاينانس','FWRY':'فوري',
+  'IRON':'الحديد والصلب','MASR':'مدينة مصر','ORAS':'أوراسكوم كونستراكشون','SKPC':'سيدي كرير',
+  'EAST':'الشرقية للدخان','ISPH':'ابن سينا فارما','CIEB':'كريدي أجريكول','QNBE':'بنك قطر الوطني',
+  'MFPC':'موبكو','JUFO':'جهينة','PHDC':'بالم هيلز','AMOC':'الإسكندرية للزيوت',
+  'ORWE':'النساجون الشرقيون','MTIE':'مجموعة إم إم','SUGR':'الدلتا للسكر','CANA':'القابضة المصرية الكويتية'
+};
+const DEFAULT = ['COMI','HRHO','TMGH','SWDY','ETEL','ABUK','EFIH','FWRY','IRON','MASR','ORAS','SKPC'];
+let SYMS = DEFAULT.slice();
+try { const s = localStorage.getItem('egx.watch'); if (s) SYMS = JSON.parse(s); } catch(e){}
+
+const $ = id => document.getElementById(id);
+const fmt = (n,d=2) => n==null||!isFinite(n) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct = n => n==null||!isFinite(n) ? '—' : (n>=0?'+':'')+n.toFixed(2)+'%';
+const cls = n => n==null?'flat':n>0.0001?'up':n<-0.0001?'down':'flat';
+
+/* ---------- حالة السوق: الأحد–الخميس 10:00–14:15 بتوقيت القاهرة ---------- */
+function market(){
+  const c = new Date(Date.now()+3*3600000);
+  const d = c.getUTCDay(), m = c.getUTCHours()*60+c.getUTCMinutes();
+  const O=600, C=855;
+  if (d===5||d===6) return {open:false, txt:'إجازة أسبوعية', next:'يفتح الأحد 10:00'};
+  if (m<O){ const left=O-m; return {open:false, txt:'لم يفتح بعد', next:`يفتح خلال ${Math.floor(left/60)}س ${left%60}د`}; }
+  if (m>C) return {open:false, txt:'أُغلق', next:'يفتح غداً 10:00'};
+  const left=C-m; return {open:true, txt:'الجلسة مفتوحة', next:`يتبقى ${Math.floor(left/60)}س ${left%60}د`};
+}
+function paintStatus(){
+  const s = market(), el = $('status');
+  el.className = 'pill '+(s.open?'open':'shut');
+  $('statusTxt').textContent = s.txt+' · '+s.next;
+}
+
+/* ---------- المؤشرات ---------- */
+const SMA=(a,n)=>a.length<n?null:a.slice(-n).reduce((s,v)=>s+v,0)/n;
+function SMAser(a,n){const o=[];for(let i=0;i<a.length;i++)o.push(i<n-1?null:a.slice(i-n+1,i+1).reduce((s,v)=>s+v,0)/n);return o;}
+function RSI(c,n=14){
+  if(c.length<n+1)return null; let g=0,l=0;
+  for(let i=1;i<=n;i++){const d=c[i]-c[i-1]; d>=0?g+=d:l-=d;}
+  let ag=g/n,al=l/n;
+  for(let i=n+1;i<c.length;i++){const d=c[i]-c[i-1];ag=(ag*(n-1)+(d>0?d:0))/n;al=(al*(n-1)+(d<0?-d:0))/n;}
+  return al===0?100:100-100/(1+ag/al);
+}
+function analyse(j,tk){
+  const r=j&&j.chart&&j.chart.result&&j.chart.result[0];
+  if(!r||!r.timestamp) return null;
+  const q=r.indicators.quote[0], c=[],h=[],l=[],v=[],dt=[];
+  for(let i=0;i<r.timestamp.length;i++){
+    if(q.close[i]==null) continue;
+    c.push(q.close[i]); h.push(q.high[i]??q.close[i]); l.push(q.low[i]??q.close[i]);
+    v.push(q.volume[i]||0); dt.push(new Date(r.timestamp[i]*1000).toISOString().slice(0,10));
+  }
+  if(c.length<25) return null;
+  const n=c.length, px=c[n-1], prev=c[n-2];
+  const s20=SMA(c,20), s50=SMA(c,50), s200=SMA(c,200), rsi=RSI(c);
+  const w=Math.min(60,n-1);
+  const res=Math.max(...h.slice(-w-1,-1)), sup=Math.min(...l.slice(-w-1,-1));
+  const vAvg=SMA(v,20);
+  let score=0;
+  if(s50&&s200) score+= s50>s200?1:-1;
+  if(s20) score+= px>s20?1:-1;
+  if(rsi!=null) score+= rsi>=55?1: rsi<=45?-1:0;
+  if(vAvg&&v[n-1]>vAvg*1.5) score+= px>prev?1:-1;
+  return {tk, name:NAMES[tk]||'', px, chg:(px/prev-1)*100, date:dt[n-1],
+    closes:c, dates:dt, s20,s50,s200,rsi,res,sup, vol:v[n-1], vAvg,
+    src:r.meta.dataSource||'Yahoo', score,
+    sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
+}
+
+/* ---------- رسم ---------- */
+function spark(c){
+  const d=c.slice(-30); if(d.length<2) return '';
+  const mn=Math.min(...d), mx=Math.max(...d), rg=(mx-mn)||1;
+  const W=68,H=30,P=3;
+  const pts=d.map((v,i)=>[P+i*(W-2*P)/(d.length-1), H-P-((v-mn)/rg)*(H-2*P)]);
+  const col=d[d.length-1]>=d[0]?'var(--up)':'var(--down)';
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}"/></svg>`;
+}
+function chart(a){
+  const c=a.closes.slice(-120), dts=a.dates.slice(-120);
+  const m20=SMAser(a.closes,20).slice(-120), m50=SMAser(a.closes,50).slice(-120);
+  const all=c.concat(m20.filter(x=>x!=null),m50.filter(x=>x!=null));
+  const mn=Math.min(...all), mx=Math.max(...all), rg=(mx-mn)||1;
+  const W=640,H=230,L=52,R=10,T=14,B=26;
+  const x=i=>L+i*(W-L-R)/(c.length-1);
+  const y=v=>T+(1-(v-mn)/rg)*(H-T-B);
+  const line=(arr,col,wd)=>{
+    const p=[]; arr.forEach((v,i)=>{ if(v!=null) p.push((p.length?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)); });
+    return p.length?`<path d="${p.join(' ')}" fill="none" stroke="${col}" stroke-width="${wd}" stroke-linejoin="round"/>`:'';
+  };
+  let g='';
+  for(let i=0;i<=3;i++){
+    const v=mn+rg*i/3, yy=y(v);
+    g+=`<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W-R}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    g+=`<text x="${L-6}" y="${(yy+3.5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--dim)">${fmt(v,1)}</text>`;
+  }
+  const ticks=[0,Math.floor(c.length/2),c.length-1];
+  ticks.forEach(i=>{ g+=`<text x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--dim)">${dts[i].slice(5)}</text>`; });
+  const last=c[c.length-1];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="سعر الإغلاق آخر 120 جلسة">
+    ${g}${line(m50,'var(--dim)',1.2)}${line(m20,'var(--accent)',1.4)}${line(c,'var(--fg)',1.8)}
+    <circle cx="${x(c.length-1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="3.2" fill="var(--fg)"/>
+  </svg>`;
+}
+
+/* ---------- عرض ---------- */
+function rowHTML(a){
+  const k=cls(a.chg);
+  return `<button class="row" data-tk="${a.tk}" type="button">
+    <span class="nm"><span class="tk">${a.tk}</span> <span class="co">${a.name}</span>
+      <span class="tag ${a.sig==='إيجابي'?'t-buy':a.sig==='سلبي'?'t-sell':'t-mid'}">${a.sig}</span></span>
+    ${spark(a.closes)}
+    <span><span class="px ${k}">${fmt(a.px)}</span><span class="ch ${k}">${pct(a.chg)}</span></span>
+  </button>`;
+}
+function sheetHTML(a){
+  const k=cls(a.chg);
+  const vr=a.vAvg?a.vol/a.vAvg:null;
+  const pts=[];
+  if(a.s50&&a.s200) pts.push(a.s50>a.s200?'المتوسط 50 فوق 200 — الاتجاه العام صاعد.':'المتوسط 50 تحت 200 — الاتجاه العام هابط.');
+  if(a.s20) pts.push(a.px>a.s20?'السعر فوق متوسط 20 جلسة.':'السعر تحت متوسط 20 جلسة.');
+  if(a.rsi!=null) pts.push(a.rsi>=70?`RSI ${a.rsi.toFixed(0)} — تشبع شرائي.`:a.rsi<=30?`RSI ${a.rsi.toFixed(0)} — تشبع بيعي.`:`RSI ${a.rsi.toFixed(0)} — زخم ${a.rsi>=55?'إيجابي':a.rsi<=45?'ضعيف':'محايد'}.`);
+  if(vr) pts.push(vr>=1.5?`الحجم ${vr.toFixed(1)}× المتوسط — حركة مدعومة.`:vr<=0.6?`الحجم ${vr.toFixed(1)}× المتوسط — سيولة ضعيفة.`:`الحجم قريب من المتوسط.`);
+  if(a.res!=null && a.sup!=null){
+    const dRes=((a.res/a.px-1)*100), dSup=((1-a.sup/a.px)*100);
+    pts.push(`المقاومة ${fmt(a.res)} (+${dRes.toFixed(1)}%) والدعم ${fmt(a.sup)} (−${dSup.toFixed(1)}%).`);
+  } else {
+    pts.push('مستويات الدعم والمقاومة تحتاج تاريخ الجلسات — شغّل worker.js لنشر ترويسة CORS.');
+  }
+  if(a.hi52!=null && a.lo52!=null) pts.push(`نطاق 52 أسبوعاً: ${fmt(a.lo52)} – ${fmt(a.hi52)}.`);
+  return `<div class="sh-top">
+      <div><div class="tk" style="font-size:14px">${a.tk}.CA</div><div style="font-weight:600">${a.name}</div></div>
+      <span class="spacer" style="flex:1"></span>
+      <div style="text-align:end"><div class="big ${k}">${fmt(a.px)}</div><div class="ch ${k}">${pct(a.chg)}</div></div>
+    </div>
+    <div class="sub">آخر تحديث ${a.date} · ${a.src}</div>
+    ${a.closes.length ? chart(a) + '<div class="lg"><span><i style="background:var(--fg)"></i>السعر</span><span><i style="background:var(--accent)"></i>متوسط 20</span><span><i style="background:var(--dim)"></i>متوسط 50</span></div>'
+      : '<p class="note">الرسم البياني غير متاح — مصدر التاريخ محجوب. الأسعار والمؤشرات بالأسفل لحظية.</p>'}
+    <div class="grid">
+      <div class="cell"><span>RSI (14)</span><b>${a.rsi==null?'—':a.rsi.toFixed(1)}</b></div>
+      <div class="cell"><span>متوسط 20</span><b>${fmt(a.s20)}</b></div>
+      <div class="cell"><span>متوسط 50</span><b>${fmt(a.s50)}</b></div>
+      <div class="cell"><span>متوسط 200</span><b>${fmt(a.s200)}</b></div>
+      <div class="cell"><span>مقاومة</span><b>${fmt(a.res)}</b></div>
+      <div class="cell"><span>دعم</span><b>${fmt(a.sup)}</b></div>
+      <div class="cell"><span>حجم اليوم</span><b>${fmt(a.vol,0)}</b></div>
+      <div class="cell"><span>متوسط الحجم</span><b>${fmt(a.vAvg,0)}</b></div>
+    </div>
+    <h3>القراءة الفنية</h3>
+    <ul class="pts">${pts.map(p=>'<li>'+p+'</li>').join('')}</ul>
+    <p class="note">تحليل آلي لأغراض المعلومات وليس نصيحة استثمارية.</p>
+    <div style="display:flex;gap:8px;margin-top:14px"><button id="close" type="button">إغلاق</button></div>`;
+}
+
+/* ---------- تحميل ---------- */
+let DATA=[];
+
+/* مصدر مباشر (TradingView): السعر والقراءات الفنية — بيشتغل من المتصفح */
+function tvItem(tk, j){
+  const px=j.close, chg=j.change;
+  return {tk, px, chg,
+    date:new Date(Date.now()+3*3600000).toISOString().slice(0,10),
+    s20:j.SMA20, s50:j.SMA50, s200:j.SMA200, rsi:j.RSI,
+    vol:j.volume, vAvg:j.average_volume_10d_calc,
+    hi52:j.price_52_week_high, lo52:j.price_52_week_low,
+    src:'مباشر (TradingView)'};
+}
+
+/* مصدر التاريخ: الوسيط على كلاودفلير — ممكن يتحجب لغياب CORS.
+   بنجرب مرة واحدة بس ونحفظ النتيجة، عشان ما نستناش مهلة لكل سهم. */
+let HIST_MODE = null;   // 'direct' | 'mirror' | 'off'
+
+async function probeHistory(){
+  const t = Date.now();
+  try{
+    const r = await fetchT(`${WORKER}/COMI.CA?range=1y&interval=1d&t=${t}`, 6000);
+    if(r.ok){ await r.json(); HIST_MODE='direct'; return; }
+  }catch(e){}
+  try{
+    const r = await fetchT(buildURL('COMI'), 6000);
+    if(r.ok){ await r.json(); HIST_MODE='mirror'; return; }
+  }catch(e){}
+  HIST_MODE='off';
+}
+
+async function history(tk){
+  if(HIST_MODE===null) await probeHistory();
+  if(HIST_MODE==='off') return null;
+  try{
+    const url = HIST_MODE==='direct'
+      ? `${WORKER}/${tk}.CA?range=1y&interval=1d&t=${Date.now()}`
+      : buildURL(tk);
+    const r = await fetchT(url, 12000);
+    if(!r.ok) return null;
+    const j = await r.json();
+    const h = parseHistory(j);
+    return h ? {raw:j, ...h} : null;
+  }catch(e){ return null; }
+}
+
+async function one(tk){
+  const [tv, hist] = await Promise.all([
+    fromTV(tk).then(j=>tvItem(tk,j)).catch(()=>null),
+    history(tk),
+  ]);
+  return build(tk, tv, hist);
+}
+
+async function load(){
+  paintStatus();
+  $('list').innerHTML = SYMS.map(()=>'<div class="skel"></div>').join('');
+  $('foot').textContent='';
+  const out=[];
+  for(let i=0;i<SYMS.length;i+=3){
+    const part=await Promise.all(SYMS.slice(i,i+3).map(one));
+    part.forEach(p=>{ if(p) out.push(p); });
+    DATA=out.slice();
+    render();
+    stampLine(false);
+  }
+  stampLine(true);
+  if (typeof checkAlerts === 'function') checkAlerts(DATA);
+  const srcs=[...new Set(DATA.map(d=>d.src))];
+  if(DATA.length===0){
+    $('foot').textContent = 'تعذر تحميل البيانات — راجع الاتصال بالإنترنت ثم اضغط تحديث.';
+  } else if(srcs.some(s=>s.includes('TradingView'))){
+    const hist=DATA.filter(d=>d.closes.length).length;
+    $('foot').textContent = (hist<DATA.length
+        ? 'الأسعار والمؤشرات من مباشر لحظياً. الرسوم البيانية تحتاج وسيط البيانات — شغّل worker.js لنشر الترويسة.'
+        : 'الأسعار والمؤشرات من مباشر لحظياً، والتاريخ من الوسيط.')
+      + ' تحليل آلي وليس نصيحة استثمارية.';
+  } else {
+    $('foot').textContent = 'تعذر جلب السعر اللحظي — البيانات المعروضة هي آخر إغلاق متاح. تحليل آلي وليس نصيحة استثمارية.';
+  }
+}
+
+/* سطر الحالة — بيتحدّث بعد كل دفعة، وبيحذّر لو البيانات قديمة */
+function stampLine(done){
+  const t=new Date(Date.now()+3*3600000).toISOString().slice(11,16);
+  const ages=DATA.map(d=>Math.round((Date.now()-Date.parse(d.date))/86400000)).filter(n=>isFinite(n));
+  const fresh=ages.length?Math.min(...ages):null;
+  const stale=fresh!=null&&fresh>3;
+  $('stamp').textContent = `آخر تحديث ${t} بتوقيت القاهرة · ${DATA.length} من ${SYMS.length} سهم`
+    + (done?'':' …')
+    + (stale?` · آخر جلسة قبل ${fresh} يوم`:'');
+  if(stale && done){
+    $('foot').textContent = `تحذير: أحدث جلسة متاحة قبل ${fresh} يوم — قد تكون البيانات متأخرة. تحليل آلي وليس نصيحة استثمارية.`;
+  }
+}
+function render(){
+  const order=SYMS.map(t=>DATA.find(d=>d.tk===t)).filter(Boolean);
+  $('list').innerHTML = order.map(rowHTML).join('')
+    + SYMS.slice(order.length).map(()=>'<div class="skel"></div>').join('');
+}
+
+$('list').addEventListener('click',e=>{
+  const b=e.target.closest('.row'); if(!b) return;
+  const a=DATA.find(d=>d.tk===b.dataset.tk); if(!a) return;
+  $('sheet').innerHTML=sheetHTML(a); $('dlg').showModal();
+});
+$('dlg').addEventListener('click',e=>{ if(e.target.id==='close'||e.target===$('dlg')) $('dlg').close(); });
+$('reload').addEventListener('click',load);
+setInterval(paintStatus,30000);
+setInterval(()=>{ if(market().open) load(); },5*60*1000);
+load();
+</script>
+<div class="wrap" style="padding-block:0 0">
+  <div class="btnrow">
+    <button id="install" type="button">تثبيت على الشاشة الرئيسية</button>
+    <button id="notify" type="button">تفعيل التنبيهات</button>
+  </div>
+  <div class="banner" id="banner" hidden></div>
+</div>
+
+<script>
+/* ---------- تثبيت التطبيق ---------- */
+let deferred = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferred = e;
+  document.getElementById('install').classList.add('on');
+});
+document.getElementById('install').addEventListener('click', async () => {
+  if (!deferred) return;
+  deferred.prompt(); await deferred.userChoice; deferred = null;
+  document.getElementById('install').classList.remove('on');
+});
+if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+  document.getElementById('install').classList.remove('on');
+}
+
+/* ---------- تنبيهات داخل التطبيق (وهو مفتوح) ---------- */
+const nbtn = document.getElementById('notify');
+if ('Notification' in window) {
+  nbtn.classList.add('on');
+  const paint = () => {
+    if (Notification.permission === 'granted') { nbtn.textContent = 'التنبيهات مفعّلة'; nbtn.classList.add('active'); }
+    else if (Notification.permission === 'denied') { nbtn.textContent = 'التنبيهات محظورة'; }
+    else nbtn.textContent = 'تفعيل التنبيهات';
+  };
+  paint();
+  nbtn.addEventListener('click', async () => { try { await Notification.requestPermission(); } catch(e){} paint(); });
+}
+let SEEN = {};
+try { SEEN = JSON.parse(localStorage.getItem('egx.seen') || '{}'); } catch(e){}
+function checkAlerts(list) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const hits = [];
+  for (const a of list) {
+    const flags = [];
+    if (a.rsi != null && a.rsi <= 30) flags.push('تشبع بيعي RSI ' + a.rsi.toFixed(0));
+    if (a.rsi != null && a.rsi >= 70) flags.push('تشبع شرائي RSI ' + a.rsi.toFixed(0));
+    if (a.res != null && a.px > a.res) flags.push('اخترق المقاومة ' + a.res.toFixed(2));
+    if (a.sup != null && a.px < a.sup) flags.push('كسر الدعم ' + a.sup.toFixed(2));
+    if (a.hi52 != null && a.px >= a.hi52) flags.push('أعلى سعر في 52 أسبوعاً');
+    if (a.lo52 != null && a.px <= a.lo52) flags.push('أدنى سعر في 52 أسبوعاً');
+    if (Math.abs(a.chg) >= 4) flags.push((a.chg >= 0 ? '+' : '') + a.chg.toFixed(1) + '% في الجلسة');
+    for (const f of flags) {
+      const key = a.tk + '|' + f.slice(0, 14) + '|' + a.date;
+      if (SEEN[key]) continue;
+      SEEN[key] = Date.now();
+      hits.push({ tk: a.tk, name: a.name, f });
+    }
+  }
+  const cut = Date.now() - 3 * 86400000;
+  for (const k in SEEN) if (SEEN[k] < cut) delete SEEN[k];
+  try { localStorage.setItem('egx.seen', JSON.stringify(SEEN)); } catch(e){}
+  hits.slice(0, 4).forEach(h => {
+    try { new Notification(h.tk + ' · ' + h.name, { body: h.f, icon: 'icons/icon-192.png', tag: h.tk }); } catch(e){}
+  });
+}
+
+/* ---------- تسجيل خدمة العمل ---------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+/* ---------- لافتة التوضيح ---------- */
+(function () {
+  const b = document.getElementById('banner');
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (!standalone && ios) {
+    b.hidden = false;
+    b.innerHTML = 'لتثبيت التطبيق على الآيفون: من شريط سفاري اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».';
+  }
+})();
+</script>
+</body>
+</html>
