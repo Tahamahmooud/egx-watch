@@ -395,7 +395,7 @@ function sheetHTML(a){
     </div>
     <div class="sub">آخر تحديث ${a.date} · ${a.src}</div>
     ${a.closes.length ? chart(a) + '<div class="lg"><span><i style="background:var(--fg)"></i>السعر</span><span><i style="background:var(--accent)"></i>متوسط 20</span><span><i style="background:var(--dim)"></i>متوسط 50</span></div>'
-      : '<p class="note">الرسم البياني غير متاح — مصدر التاريخ محجوب. الأسعار والمؤشرات بالأسفل لحظية.</p>'}
+      : '<p class="note">الرسم البياني غير متاح حالياً — الأسعار والمؤشرات بالأسفل لحظية.</p>'}
     <div class="grid">
       <div class="cell"><span>RSI (14)</span><b>${a.rsi==null?'—':a.rsi.toFixed(1)}</b></div>
       <div class="cell"><span>متوسط 20</span><b>${fmt(a.s20)}</b></div>
