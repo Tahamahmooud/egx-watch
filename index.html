@@ -84,6 +84,18 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .t-buy{background:color-mix(in srgb,var(--up) 16%,transparent);color:var(--up)}
 .t-sell{background:color-mix(in srgb,var(--down) 16%,transparent);color:var(--down)}
 .t-mid{background:var(--surface-2);color:var(--dim)}
+.t-strong{background:color-mix(in srgb,var(--up) 30%,transparent);color:var(--up);font-weight:700}
+.t-warn{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:10px 0}
+.plan .cell{border:1px solid var(--line)}
+.px-entry b{color:var(--accent)} .px-stop b{color:var(--down)} .px-t b{color:var(--up)}
+.bar-r{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);margin:4px 0}
+.bar-r .lb{min-width:96px}
+.bar-r .vv{font-family:var(--f-num);color:var(--fg);font-weight:600;min-width:62px;text-align:end}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 2px}
+.chip{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--dim);cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
 
 .note{font-size:12px;color:var(--dim);margin:14px 2px 0;line-height:1.7}
 .skel{height:62px;border-radius:12px;background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%);
@@ -139,8 +151,17 @@ ul.pts{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.8}
         <option value="gain">الأعلى صعوداً</option>
         <option value="lose">الأعلى هبوطاً</option>
         <option value="vol">الأعلى حجماً</option>
+        <option value="rr">أفضل عائد/مخاطرة</option>
         <option value="name">الاسم</option>
       </select>
+    </div>
+    <div class="chips" id="filters">
+      <span class="chip" data-f="opp">الفرص</span>
+      <span class="chip" data-f="strong">فرصة قوية</span>
+      <span class="chip" data-f="up">اتجاه صاعد</span>
+      <span class="chip" data-f="down">اتجاه هابط</span>
+      <span class="chip" data-f="oversold">تشبع بيعي</span>
+      <span class="chip" data-f="nearlow">قريب من أدنى سنة</span>
     </div>
   </header>
 
@@ -261,7 +282,7 @@ function merge(tk, tv, hist){
 function build(tk, tv, hist){
   if(tv && hist) return merge(tk, tv, hist);
   if(tv){
-    // مفيش تاريخ: القيم الفنية موجودة، والرسم غايب
+    // مفيش تاريخ: القيم الفنية ونقاط البيفوت موجودة، والرسم غايب
     let score=0;
     if(tv.s50&&tv.s200) score+= tv.s50>tv.s200?1:-1;
     if(tv.s20) score+= tv.px>tv.s20?1:-1;
@@ -269,6 +290,10 @@ function build(tk, tv, hist){
     return {tk, name:NAMES[tk]||'', px:tv.px, chg:tv.chg, date:tv.date||'', en:tv.en,
       closes:[], dates:[], s20:tv.s20, s50:tv.s50, s200:tv.s200, rsi:tv.rsi,
       res:null, sup:null, vol:tv.vol, vAvg:tv.vAvg, src:tv.src, score,
+      atr:tv.atr, vola:tv.vola, rec:tv.rec,
+      pS1:tv.pS1, pS2:tv.pS2, pS3:tv.pS3, pR1:tv.pR1, pR2:tv.pR2, pR3:tv.pR3, pM:tv.pM,
+      hi1m:tv.hi1m, lo1m:tv.lo1m, hi3m:tv.hi3m, lo3m:tv.lo3m,
+      hi52:tv.hi52, lo52:tv.lo52,
       sig: score>=2?'إيجابي': score<=-2?'سلبي':'محايد'};
   }
   return analyse(hist&&hist.raw, tk);
@@ -441,50 +466,97 @@ function rowHTML(a){
     </button>`;
   }
   const k=cls(a.chg);
+  const an=a.an||{};
+  const tagCls = an.kind==='فرصة قوية'?'t-strong'
+    : an.kind==='فرصة'?'t-buy'
+    : an.kind==='خطر — اتجاه هابط'?'t-sell'
+    : an.kind==='ساكن — بلا حركة'?'t-mid'
+    : an.kind==='تشبع شرائي'?'t-warn':'t-mid';
+  const tagTitle = (an.why||[]).slice(0,2).join(' ');
   return `<button class="row" data-tk="${a.tk}" type="button">
     <span class="nm"><span class="tk">${a.tk}</span> <span class="co">${a.name||NAMES[a.tk]||''}</span>
-      <span class="tag ${a.sig==='إيجابي'?'t-buy':a.sig==='سلبي'?'t-sell':'t-mid'}"
-        title="إشارة فنية من المتوسطات و RSI والحجم — مش تغيّر اليوم">${a.sig}</span></span>
+      <span class="tag ${tagCls}" title="${tagTitle}">${an.kind||a.sig}</span></span>
     ${spark(a.closes)}
     <span><span class="px ${k}">${fmt(a.px)}</span><span class="ch ${k}">${pct(a.chg)}</span></span>
   </button>`;
 }
 function sheetHTML(a){
   const k=cls(a.chg);
+  const an=a.an||{};
   const vr=a.vAvg?a.vol/a.vAvg:null;
-  const pts=[];
-  if(a.s50&&a.s200) pts.push(a.s50>a.s200?'المتوسط 50 فوق 200 — الاتجاه العام صاعد.':'المتوسط 50 تحت 200 — الاتجاه العام هابط.');
-  if(a.s20) pts.push(a.px>a.s20?'السعر فوق متوسط 20 جلسة.':'السعر تحت متوسط 20 جلسة.');
-  if(a.rsi!=null) pts.push(a.rsi>=70?`RSI ${a.rsi.toFixed(0)} — تشبع شرائي.`:a.rsi<=30?`RSI ${a.rsi.toFixed(0)} — تشبع بيعي.`:`RSI ${a.rsi.toFixed(0)} — زخم ${a.rsi>=55?'إيجابي':a.rsi<=45?'ضعيف':'محايد'}.`);
-  if(vr) pts.push(vr>=1.5?`الحجم ${vr.toFixed(1)}× المتوسط — حركة مدعومة.`:vr<=0.6?`الحجم ${vr.toFixed(1)}× المتوسط — سيولة ضعيفة.`:`الحجم قريب من المتوسط.`);
-  if(a.res!=null && a.sup!=null){
-    const dRes=((a.res/a.px-1)*100), dSup=((1-a.sup/a.px)*100);
-    pts.push(`المقاومة ${fmt(a.res)} (+${dRes.toFixed(1)}%) والدعم ${fmt(a.sup)} (−${dSup.toFixed(1)}%).`);
-  } else {
-    pts.push('مستويات الدعم والمقاومة غير متاحة حالياً.');
-  }
-  if(a.hi52!=null && a.lo52!=null) pts.push(`نطاق 52 أسبوعاً: ${fmt(a.lo52)} – ${fmt(a.hi52)}.`);
+
+  const lvRow = (label,o,cls2)=>{
+    if(!o) return '';
+    const d=((o.v/a.px-1)*100);
+    return `<div class="bar-r"><span class="lb">${label}</span>
+      <span class="vv ${cls2||''}">${fmn(o.v)}</span>
+      <span>${o.label} (${d>=0?'+':''}${d.toFixed(1)}%)</span></div>`;
+  };
+
+  const planBlock = an.entry ? `
+    <h3>خطة التداول</h3>
+    <div class="plan">
+      <div class="cell px-entry"><span>الدخول المقترح</span><b>${fmn(an.entry)}</b></div>
+      <div class="cell px-stop"><span>وقف الخسارة</span><b>${fmn(an.stop)}</b></div>
+      <div class="cell px-t"><span>الهدف الأول</span><b>${fmn(an.t1)}</b></div>
+      <div class="cell px-t"><span>الهدف الثاني</span><b>${fmn(an.t2)}</b></div>
+      <div class="cell"><span>نسبة العائد/المخاطرة</span><b>${an.rr==null?'—':an.rr.toFixed(1)+':١'}</b></div>
+      <div class="cell"><span>المخاطرة للسهم</span><b>${fmn(an.risk)}</b></div>
+    </div>
+    <div class="note">منطقة الدخول ${fmn(an.entryZone[0])} – ${fmn(an.entryZone[1])}.
+      الوقف ${fmn(an.stop)} (${((an.stop/a.px-1)*100).toFixed(1)}% من السعر الحالي).</div>` : '';
+
+  const lvBlock = (an.sup||an.res) ? `
+    <h3>أقرب المستويات</h3>
+    ${lvRow('أقرب مقاومة', an.res, 'up')}
+    ${lvRow('المقاومة التالية', an.res2, 'up')}
+    ${lvRow('أقرب دعم', an.sup, 'down')}
+    ${lvRow('الدعم التالي', an.sup2, 'down')}` : '';
+
+  const pivotBlock = (a.pS1!=null||a.pR1!=null) ? `
+    <h3>نقاط البيفوت (جلسة واحدة)</h3>
+    <div class="grid">
+      <div class="cell"><span>مقاومة ٣</span><b>${fmn(a.pR3)}</b></div>
+      <div class="cell"><span>مقاومة ٢</span><b>${fmn(a.pR2)}</b></div>
+      <div class="cell"><span>مقاومة ١</span><b>${fmn(a.pR1)}</b></div>
+      <div class="cell"><span>البيفوت</span><b>${fmn(a.pM)}</b></div>
+      <div class="cell"><span>دعم ١</span><b>${fmn(a.pS1)}</b></div>
+      <div class="cell"><span>دعم ٢</span><b>${fmn(a.pS2)}</b></div>
+      <div class="cell"><span>دعم ٣</span><b>${fmn(a.pS3)}</b></div>
+      <div class="cell"><span>ATR (تقلب يومي)</span><b>${fmn(a.atr)}</b></div>
+    </div>` : '';
+
   return `<div class="sh-top">
-      <div><div class="tk" style="font-size:14px">${a.tk}.CA</div><div style="font-weight:600">${a.name}</div></div>
+      <div><div class="tk" style="font-size:14px">${a.tk}.CA</div><div style="font-weight:600">${a.name||NAMES[a.tk]||''}</div></div>
       <span class="spacer" style="flex:1"></span>
-      <div style="text-align:end"><div class="big ${k}">${fmt(a.px)}</div><div class="ch ${k}">${pct(a.chg)}</div></div>
+      <div style="text-align:end"><div class="big ${k}">${fmn(a.px)}</div><div class="ch ${k}">${pct(a.chg)}</div></div>
     </div>
     <div class="sub">آخر تحديث ${a.date} · ${a.src}</div>
+    <div class="chips">
+      <span class="chip on">${an.kind||a.sig}</span>
+      ${an.trend?`<span class="chip">اتجاه ${an.trend}</span>`:''}
+      ${a.rec!=null?`<span class="chip">تقييم فني ${a.rec>0?'+':''}${a.rec.toFixed(2)}</span>`:''}
+      ${a.vola!=null?`<span class="chip">تقلب ${a.vola.toFixed(1)}%</span>`:''}
+    </div>
+    ${planBlock}
+    ${lvBlock}
     ${a.closes.length ? chart(a) + '<div class="lg"><span><i style="background:var(--fg)"></i>السعر</span><span><i style="background:var(--accent)"></i>متوسط 20</span><span><i style="background:var(--dim)"></i>متوسط 50</span></div>'
-      : '<p class="note">الرسم البياني غير متاح حالياً — الأسعار والمؤشرات بالأسفل لحظية.</p>'}
+      : ''}
+    ${pivotBlock}
     <div class="grid">
       <div class="cell"><span>RSI (14)</span><b>${a.rsi==null?'—':a.rsi.toFixed(1)}</b></div>
-      <div class="cell"><span>متوسط 20</span><b>${fmt(a.s20)}</b></div>
-      <div class="cell"><span>متوسط 50</span><b>${fmt(a.s50)}</b></div>
-      <div class="cell"><span>متوسط 200</span><b>${fmt(a.s200)}</b></div>
-      <div class="cell"><span>مقاومة</span><b>${fmt(a.res)}</b></div>
-      <div class="cell"><span>دعم</span><b>${fmt(a.sup)}</b></div>
+      <div class="cell"><span>متوسط 20</span><b>${fmn(a.s20)}</b></div>
+      <div class="cell"><span>متوسط 50</span><b>${fmn(a.s50)}</b></div>
+      <div class="cell"><span>متوسط 200</span><b>${fmn(a.s200)}</b></div>
+      <div class="cell"><span>أعلى ٥٢ أسبوعاً</span><b>${fmn(a.hi52)}</b></div>
+      <div class="cell"><span>أدنى ٥٢ أسبوعاً</span><b>${fmn(a.lo52)}</b></div>
       <div class="cell"><span>حجم اليوم</span><b>${fmt(a.vol,0)}</b></div>
       <div class="cell"><span>متوسط الحجم</span><b>${fmt(a.vAvg,0)}</b></div>
     </div>
     <h3>القراءة الفنية</h3>
-    <ul class="pts">${pts.map(p=>'<li>'+p+'</li>').join('')}</ul>
-    <p class="note">تحليل آلي لأغراض المعلومات وليس نصيحة استثمارية.</p>
+    <ul class="pts">${(an.why||[]).map(p=>'<li>'+p+'</li>').join('')}</ul>
+    <p class="note">الأرقام محسوبة آلياً من نقاط البيفوت و ATR والمتوسطات.
+      لأغراض المعلومات وليست نصيحة استثمارية.</p>
     <div style="display:flex;gap:8px;margin-top:14px"><button id="close" type="button">إغلاق</button></div>`;
 }
 
@@ -494,7 +566,11 @@ function sheetHTML(a){
    preflight، ودي الطريقة الوحيدة اللي بتشتغل من المتصفح.            */
 const TV_SCAN = 'https://scanner.tradingview.com/egypt/scan';
 const TV_COLS = ['close','change','RSI','SMA20','SMA50','SMA200','volume','average_volume_10d_calc',
-                 'price_52_week_high','price_52_week_low','description','type'];
+                 'price_52_week_high','price_52_week_low','description','type',
+                 'ATR','Volatility.D','Recommend.All',
+                 'Pivot.M.Classic.S1','Pivot.M.Classic.S2','Pivot.M.Classic.S3',
+                 'Pivot.M.Classic.R1','Pivot.M.Classic.R2','Pivot.M.Classic.R3',
+                 'Pivot.M.Classic.Middle','High.1M','Low.1M','High.3M','Low.3M'];
 
 async function fetchMarket(){
   const body = JSON.stringify({
@@ -516,7 +592,159 @@ function tvItem(tk, d){
     s20:v.SMA20, s50:v.SMA50, s200:v.SMA200, rsi:v.RSI,
     vol:v.volume, vAvg:v.average_volume_10d_calc,
     hi52:v.price_52_week_high, lo52:v.price_52_week_low,
+    atr:v.ATR, vola:v['Volatility.D'], rec:v['Recommend.All'],
+    pS1:v['Pivot.M.Classic.S1'], pS2:v['Pivot.M.Classic.S2'], pS3:v['Pivot.M.Classic.S3'],
+    pR1:v['Pivot.M.Classic.R1'], pR2:v['Pivot.M.Classic.R2'], pR3:v['Pivot.M.Classic.R3'],
+    pM:v['Pivot.M.Classic.Middle'],
+    hi1m:v['High.1M'], lo1m:v['Low.1M'], hi3m:v['High.3M'], lo3m:v['Low.3M'],
     en:v.description, src:'مباشر (TradingView)'};
+}
+
+/* ---------- محلل الفرص: نقاط الدخول والخروج والأهداف ----------
+   كل الأرقام محسوبة من بيانات السوق: نقاط البيفوت الكلاسيكية، ATR
+   للتقلب، والمتوسطات. مفيش أي رقم مكتوب بالإيد.                 */
+
+/* دقة العرض بتتدرج حسب سعر السهم — أسهم بقرش وأسهم بألف جنيه */
+function dp(v){
+  const x=Math.abs(v||0);
+  return x>=10 ? 2 : x>=1 ? 3 : x>=0.1 ? 4 : 5;
+}
+const fmn = v => fmt(v, dp(v));
+const r2 = n => n==null||!isFinite(n) ? null : Math.round(n*100)/100;
+
+/* اتجاه السهم من ترتيب المتوسطات والسعر */
+function trendOf(a){
+  const {px,s20,s50,s200}=a;
+  if(s20==null||s50==null) return {t:'غير محدد', w:0};
+  let w=0;
+  if(s200!=null) w += s50>s200 ? 1 : -1;
+  w += px>s20 ? 1 : -1;
+  w += px>s50 ? 1 : -1;
+  if(w>=2) return {t:'صاعد', w};
+  if(w<=-2) return {t:'هابط', w};
+  return {t:'عرضي', w};
+}
+
+/* أقرب مستوى تحت السعر وفوقه — الأساس لنقاط الدخول والخروج */
+function levels(a){
+  const above=[], below=[];
+  const eps = Math.max(a.px*0.002, 1e-9);   // مستوى ملزوق في السعر مش مستوى
+  const put=(v,label)=>{ if(v==null||!isFinite(v)||v<=0) return;
+    if(Math.abs(v-a.px) < eps) return;
+    (v>a.px?above:below).push({v,label}); };
+  put(a.pR1,'مقاومة ١ بيفوت');
+  put(a.pR2,'مقاومة ٢ بيفوت');
+  put(a.pR3,'مقاومة ٣ بيفوت');
+  put(a.pM,'نقطة البيفوت');
+  put(a.pS1,'دعم ١ بيفوت');
+  put(a.pS2,'دعم ٢ بيفوت');
+  put(a.pS3,'دعم ٣ بيفوت');
+  put(a.s20,'متوسط ٢٠');
+  put(a.s50,'متوسط ٥٠');
+  put(a.s200,'متوسط ٢٠٠');
+  put(a.hi1m,'أعلى شهر');
+  put(a.lo1m,'أدنى شهر');
+  put(a.hi3m,'أعلى ٣ شهور');
+  put(a.lo3m,'أدنى ٣ شهور');
+  put(a.hi52,'أعلى ٥٢ أسبوعاً');
+  put(a.lo52,'أدنى ٥٢ أسبوعاً');
+  above.sort((x,y)=>x.v-y.v);
+  below.sort((x,y)=>y.v-x.v);
+  // الدور بيتحدد بالموضع مش بالاسم: اللي فوق السعر مقاومة واللي تحته دعم
+  above.forEach(o=>o.role='مقاومة');
+  below.forEach(o=>o.role='دعم');
+  return {sup: below[0]||null, res: above[0]||null,
+          sup2: below[1]||null, res2: above[1]||null, above};
+}
+
+/* تصنيف الفرصة + نقاط الدخول والخروج والأهداف */
+function analyse(a){
+  const L = levels(a);
+  const {t:trend} = trendOf(a);
+  const atr = a.atr;
+  const rec = a.rec;
+  const px = a.px;
+
+  // سهم ساكن: مفيش تقلب ومفيش مستويات — مفيش خطة تتحسب أصلاً
+  const flat = (atr==null || atr < px*0.0005) && !L.sup && !L.res;
+  if(flat){
+    return {kind:'ساكن — بلا حركة', trend:'غير محدد', entry:null, entryZone:null,
+      stop:null, t1:null, t2:null, rr:null, risk:null,
+      sup:null, res:null, sup2:null, res2:null, atr,
+      why:['السهم مش بيتحرك ومفيش مستويات كافية لحساب خطة دخول وخروج.',
+           'الأوراق الساكنة صعب البيع فيها بالسعر اللي تشتري بيه.']};
+  }
+
+  // وحدة الوقف: ٢×ATR لو متاح، وإلا ٥٪ من السعر
+  const atrUnit = atr!=null ? atr*2 : px*0.05;
+
+  // الدخول عند السعر الحالي، ومنطقة الدخول المفضلة عند أقرب دعم
+  const entry = px;
+  const entryZone = L.sup && L.sup.v < px
+    ? [L.sup.v*1.002, px]
+    : [px*0.995, px*1.005];
+
+  // الوقف: تحت الدعم مباشرة، مع حد أدنى ٠.٨×ATR (عشان الضوضاء ما تضربهوش)
+  // وحد أقصى ١٥٪ من السعر (عشان المخاطرة تفضل معقولة)
+  let stopRaw = L.sup ? L.sup.v*0.985 : px - atr*2;
+  const minRisk = atr!=null ? atr*0.8 : px*0.02;
+  const maxRisk = px*0.15;
+  if(entry - stopRaw < minRisk) stopRaw = entry - minRisk;
+  if(entry - stopRaw > maxRisk) stopRaw = entry - maxRisk;
+  const stop = stopRaw;
+
+  // الأهداف: أول مقاومة فوق السعر بمسافة معقولة (≥٠.٥×ATR)، وإلا مضاعفات ATR
+  const minStep = atr!=null ? atr*0.5 : px*0.02;
+  const far = L.above.filter(o => o.v > entry + minStep);
+  const t1 = far[0] ? far[0].v : entry + atrUnit*1.5;
+  const t2 = far[1] ? far[1].v : (far[0] ? far[0].v + atrUnit*1.2 : entry + atrUnit*2.5);
+  const t1src = far[0] ? far[0].label : null;
+  const t2src = far[1] ? far[1].label : null;
+
+  const risk = entry - stop;
+  const rr = risk>0 && t1>entry ? (t1-entry)/risk : null;
+
+  // التصنيف
+  let score = 0;
+  if(trend==='صاعد') score += 2; else if(trend==='هابط') score -= 2;
+  if(a.rsi!=null){ if(a.rsi<=35) score+=1; else if(a.rsi>=70) score-=1; }
+  if(rec!=null){ if(rec>=0.3) score+=2; else if(rec<=-0.3) score-=2; }
+  if(a.vAvg && a.vol) score += a.vol>a.vAvg*1.3 ? 1 : 0;
+  if(L.sup && (px-L.sup.v)/px < 0.02) score += 1;      // قريب من دعم
+  if(rr!=null && rr>=2) score += 1;                     // عائد يستحق المخاطرة
+  if(rr!=null && rr<1) score -= 1;                      // عائد ضعيف مقابل المخاطرة
+
+  let kind, why=[];
+  if(score>=4) kind='فرصة قوية';
+  else if(score>=2) kind='فرصة';
+  else if(score<=-3) kind='خطر — اتجاه هابط';
+  else if(a.rsi!=null && a.rsi>=70) kind='تشبع شرائي';
+  else kind='مراقبة';
+
+  // بوابة جودة: ما ينفعش نسميها «فرصة قوية» وعائدها أقل من ١.٥ مقابل المخاطرة
+  if(kind==='فرصة قوية' && (rr==null || rr<1.5)) kind='فرصة';
+
+  if(trend==='صاعد') why.push('الاتجاه العام صاعد (المتوسطات مرتبة تصاعدياً).');
+  else if(trend==='هابط') why.push('الاتجاه العام هابط — الدخول مخاطرة.');
+  else why.push('الاتجاه عرضي — مفيش اتجاه واضح.');
+  if(a.rsi!=null){
+    if(a.rsi<=35) why.push(`RSI ${a.rsi.toFixed(0)} — قريب من التشبع البيعي، احتمال ارتداد.`);
+    else if(a.rsi>=70) why.push(`RSI ${a.rsi.toFixed(0)} — تشبع شرائي، احتمال تصحيح.`);
+    else why.push(`RSI ${a.rsi.toFixed(0)} — زخم متوسط.`);
+  }
+  if(rec!=null) why.push(`التقييم الفني المجمّع ${rec>0?'+':''}${rec.toFixed(2)} (من −١ إلى +١).`);
+  if(a.atr!=null) why.push(`متوسط التحرك اليومي (ATR) ${a.atr.toFixed(2)} جنيه — الوقف على بعد ${(risk/px*100).toFixed(1)}% من السعر.`);
+  if(L.sup) why.push(`المستوى المعتمد تحت السعر: ${L.sup.label} عند ${fmn(L.sup.v)}.`);
+  if(t1src) why.push(`الهدف الأول عند ${t1src} ${fmn(t1)}.`);
+  else why.push(`الهدف الأول ${fmn(t1)} (مضاعف ATR — مفيش مقاومة قريبة).`);
+  if(t2src) why.push(`الهدف الثاني عند ${t2src} ${fmn(t2)}.`);
+  if(rr!=null) why.push(rr>=2
+    ? `نسبة العائد للمخاطرة ${rr.toFixed(1)}:١ — عائد يستحق المخاطرة.`
+    : rr>=1 ? `نسبة العائد للمخاطرة ${rr.toFixed(1)}:١ — مقبولة.`
+            : `نسبة العائد للمخاطرة ${rr.toFixed(1)}:١ — ضعيفة، الأفضل الانتظار.`);
+
+  return {kind, why, trend, entry, entryZone, stop, t1, t2, rr, risk,
+          sup:L.sup, res:L.res, sup2:L.sup2, res2:L.res2, atr};
 }
 
 /* مصدر التاريخ: الوسيط على كلاودفلير — ممكن يتحجب لغياب CORS.
@@ -559,6 +787,11 @@ async function loadHistory(tk){
   const base = DATA[i];
   const merged = build(tk, base, h);
   merged.en = base.en;
+  merged.atr = base.atr; merged.vola = base.vola; merged.rec = base.rec;
+  merged.pS1=base.pS1; merged.pS2=base.pS2; merged.pS3=base.pS3;
+  merged.pR1=base.pR1; merged.pR2=base.pR2; merged.pR3=base.pR3; merged.pM=base.pM;
+  merged.hi1m=base.hi1m; merged.lo1m=base.lo1m; merged.hi3m=base.hi3m; merged.lo3m=base.lo3m;
+  merged.an = analyse(merged);
   DATA[i] = merged;
   if($('dlg').open) $('sheet').innerHTML = sheetHTML(merged);
   render();
@@ -572,7 +805,11 @@ async function load(){
     const rows = await fetchMarket();
     const bySym = {};
     rows.forEach(d=>{ bySym[d.s.replace('EGX:','')] = d; });
-    DATA = SYMS.filter(t=>bySym[t]).map(t=>build(t, tvItem(t, bySym[t].d), null));
+    DATA = SYMS.filter(t=>bySym[t]).map(t=>{
+      const a = build(t, tvItem(t, bySym[t].d), null);
+      a.an = analyse(a);
+      return a;
+    });
     // الرموز اللي المنصة مش بتغطيها — تفضل في القائمة بعلامة «—»
     const missing = SYMS.filter(t=>!bySym[t]);
     missing.forEach(t=>DATA.push({tk:t, name:'', px:null, chg:null, date:'',
@@ -612,8 +849,8 @@ function stampLine(done){
   }
 }
 
-/* ---------- بحث وترتيب ---------- */
-let QUERY='', SORT='default';
+/* ---------- بحث وترتيب وفلترة ---------- */
+let QUERY='', SORT='default', FILTER=null;
 
 /* تطبيع النص العربي: الألف والتاء المربوطة والياء والهمزات والتشكيل */
 function norm(s){
@@ -629,10 +866,24 @@ function norm(s){
     .toLowerCase();
 }
 
+function matchFilter(d){
+  if(!FILTER) return true;
+  if(d.noData) return false;
+  const an=d.an||{};
+  switch(FILTER){
+    case 'opp':      return an.kind==='فرصة' || an.kind==='فرصة قوية';
+    case 'strong':   return an.kind==='فرصة قوية';
+    case 'up':       return an.trend==='صاعد';
+    case 'down':     return an.trend==='هابط';
+    case 'oversold': return d.rsi!=null && d.rsi<=35;
+    case 'nearlow':  return d.lo52!=null && (d.px-d.lo52)/d.px <= 0.05;
+  }
+  return true;
+}
+
 function visible(){
-  const raw=QUERY.trim();
-  const q=norm(raw);
-  let arr=DATA.slice();
+  const q=norm(QUERY.trim());
+  let arr=DATA.filter(matchFilter);
   if(q) arr=arr.filter(d=>
     d.tk.toLowerCase().includes(q) ||
     norm(NAMES[d.tk]).includes(q) ||
@@ -640,6 +891,7 @@ function visible(){
   if(SORT==='gain') arr.sort((a,b)=>(b.chg??-999)-(a.chg??-999));
   else if(SORT==='lose') arr.sort((a,b)=>(a.chg??999)-(b.chg??999));
   else if(SORT==='vol') arr.sort((a,b)=>(b.vol??-1)-(a.vol??-1));
+  else if(SORT==='rr') arr.sort((a,b)=>((b.an&&b.an.rr)??-1)-((a.an&&a.an.rr)??-1));
   else if(SORT==='name') arr.sort((a,b)=>norm(NAMES[a.tk]||a.tk).localeCompare(norm(NAMES[b.tk]||b.tk),'ar'));
   return arr;
 }
@@ -649,11 +901,18 @@ function render(){
   const shown=arr.slice(0,MAX);
   $('list').innerHTML = shown.map(rowHTML).join('')
     + (arr.length>MAX ? `<p class="note">بيظهر أول ${MAX} سهم من ${arr.length} — استخدم البحث للوصول لباقي السوق.</p>` : '')
-    + (arr.length===0 ? '<p class="note">مفيش نتائج مطابقة للبحث.</p>' : '');
+    + (arr.length===0 ? '<p class="note">مفيش نتائج مطابقة.</p>' : '');
 }
 
 $('q').addEventListener('input', e=>{ QUERY=e.target.value; render(); });
 $('sort').addEventListener('change', e=>{ SORT=e.target.value; render(); });
+$('filters').addEventListener('click', e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  const f=c.dataset.f;
+  FILTER = (FILTER===f) ? null : f;
+  [...$('filters').children].forEach(x=>x.classList.toggle('on', x.dataset.f===FILTER));
+  render();
+});
 
 $('list').addEventListener('click',e=>{
   const b=e.target.closest('.row'); if(!b || b.disabled) return;
