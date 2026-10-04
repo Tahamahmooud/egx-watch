@@ -14,82 +14,43 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-:root{
-  --bg:#f6f4ef; --surface:#fffefb; --surface-2:#efebe2; --line:#e0dacd;
-  --fg:#1b1813; --dim:#6d6558; --accent:#9a6f10;
-  --up:#0d7a4a; --down:#b6342a; --flat:#7a7264;
-  --gold:#d4a017; --gold-light:#f5e6b8; --gold-dark:#8b6914;
-  --shadow:0 1px 2px rgba(40,32,16,.06),0 8px 24px rgba(40,32,16,.05);
-  --f-ui:"IBM Plex Sans Arabic",system-ui,"Segoe UI",sans-serif;
-  --f-num:"IBM Plex Mono",ui-monospace,monospace;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#121110; --surface:#1b1917; --surface-2:#24211d; --line:#2f2b25;
-  --fg:#f1ece2; --dim:#9b9285; --accent:#d9ab4a;
-  --up:#3ccf8e; --down:#ff6f61; --flat:#8c8478;
-  --gold:#f0c040; --gold-light:#3a3010; --gold-dark:#f0c040;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
-  color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#121110; --surface:#1b1917; --surface-2:#24211d; --line:#2f2b25;
-  --fg:#f1ece2; --dim:#9b9285; --accent:#d9ab4a;
-  --up:#3ccf8e; --down:#ff6f61; --flat:#8c8478;
-  --gold:#f0c040; --gold-light:#3a3010; --gold-dark:#f0c040;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
-  color-scheme:dark;
-}
+:root{--bg:#f6f4ef;--surface:#fffefb;--surface-2:#efebe2;--line:#e0dacd;--fg:#1b1813;--dim:#6d6558;--accent:#9a6f10;--up:#0d7a4a;--down:#b6342a;--flat:#7a7264;--gold:#d4a017;--gold-light:#f5e6b8;--gold-dark:#8b6914;--shadow:0 1px 2px rgba(40,32,16,.06),0 8px 24px rgba(40,32,16,.05);--f-ui:"IBM Plex Sans Arabic",system-ui,"Segoe UI",sans-serif;--f-num:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121110;--surface:#1b1917;--surface-2:#24211d;--line:#2f2b25;--fg:#f1ece2;--dim:#9b9285;--accent:#d9ab4a;--up:#3ccf8e;--down:#ff6f61;--flat:#8c8478;--gold:#f0c040;--gold-light:#3a3010;--gold-dark:#f0c040;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121110;--surface:#1b1917;--surface-2:#24211d;--line:#2f2b25;--fg:#f1ece2;--dim:#9b9285;--accent:#d9ab4a;--up:#3ccf8e;--down:#ff6f61;--flat:#8c8478;--gold:#f0c040;--gold-light:#3a3010;--gold-dark:#f0c040;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);margin:0;line-height:1.6}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px;padding-block:0 32px}
 [dir=rtl]{direction:rtl}
-
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:12px 16px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:12px 16px}
 .hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 h1{font-size:18px;font-weight:700;margin:0;letter-spacing:-.01em}
 .sub{font-size:12px;color:var(--dim);font-family:var(--f-num)}
 .spacer{flex:1}
-button{font-family:inherit;font-size:13px;color:var(--fg);background:var(--surface-2);
-  border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button{font-family:inherit;font-size:13px;color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
 button:hover{border-color:var(--accent)}
-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
-.gold-bar{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--gold-dark);
-  border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gold-bar{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--gold-dark);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .gold-bar .icon{font-size:28px}
 .gold-bar .title{font-weight:700;font-size:15px}
 .gold-bar .desc{font-size:12px;opacity:.85}
-
 .golden-list{display:flex;flex-direction:column;gap:12px}
-.g-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;
-  box-shadow:var(--shadow);position:relative;overflow:hidden}
+.g-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .g-card::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gold)}
-.g-card .rank{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;
-  background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:14px;font-family:var(--f-num)}
+.g-card .rank{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;font-family:var(--f-num)}
 .g-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
 .g-tk{font-family:var(--f-num);font-size:13px;font-weight:600;color:var(--accent)}
 .g-name{font-weight:600;font-size:15px}
 .g-px{font-family:var(--f-num);font-size:22px;font-weight:600}
 .g-chg{font-family:var(--f-num);font-size:13px}
-.g-chg.up{color:var(--up)} .g-chg.down{color:var(--down)}
-
+.g-chg.up{color:var(--up)}.g-chg.down{color:var(--down)}
 .g-score{display:flex;align-items:center;gap:8px;margin:8px 0}
 .g-score .bar{flex:1;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
 .g-score .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--up))}
 .g-score .val{font-family:var(--f-num);font-weight:600;font-size:14px;color:var(--gold)}
-
 .g-indicators{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin:12px 0}
 .g-ind{background:var(--surface-2);border-radius:8px;padding:8px 10px;text-align:center}
 .g-ind .label{font-size:10px;color:var(--dim);margin-bottom:2px}
 .g-ind .value{font-family:var(--f-num);font-size:13px;font-weight:600}
-.g-ind .value.up{color:var(--up)} .g-ind .value.down{color:var(--down)} .g-ind .value.neutral{color:var(--flat)}
-
-.g-chart{width:100%;height:auto;display:block;margin:12px 0 4px;border-radius:8px;background:var(--surface-2)}
-.g-legend{display:flex;gap:14px;font-size:11px;color:var(--dim);flex-wrap:wrap;margin-bottom:8px}
-.g-legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-inline-end:4px}
-
+.g-ind .value.up{color:var(--up)}.g-ind .value.down{color:var(--down)}.g-ind .value.neutral{color:var(--flat)}
 .g-analysis{margin-top:12px}
 .g-analysis h3{font-size:13px;font-weight:600;margin:12px 0 6px;color:var(--dim)}
 .g-analysis ul{margin:0;padding-inline-start:18px;font-size:13px;line-height:1.8}
@@ -98,23 +59,18 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .g-tag.positive{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
 .g-tag.negative{background:color-mix(in srgb,var(--down) 15%,transparent);color:var(--down)}
 .g-tag.neutral{background:var(--surface-2);color:var(--dim)}
-
 .g-plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:12px 0}
 .g-plan .cell{background:var(--surface-2);border-radius:8px;padding:8px 10px;text-align:center}
 .g-plan .cell span{font-size:10px;color:var(--dim);display:block;margin-bottom:2px}
 .g-plan .cell b{font-family:var(--f-num);font-size:14px;font-weight:600}
-.g-plan .cell.entry b{color:var(--accent)} .g-plan .cell.stop b{color:var(--down)} .g-plan .cell.target b{color:var(--up)}
-
+.g-plan .cell.entry b{color:var(--accent)}.g-plan .cell.stop b{color:var(--down)}.g-plan .cell.target b{color:var(--up)}
 .g-news{margin-top:12px;padding:10px 12px;background:var(--surface-2);border-radius:8px;font-size:12px}
 .g-news .news-item{margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--line)}
 .g-news .news-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
 .g-news .news-title{font-weight:600}
 .g-news .news-source{font-size:10px;color:var(--dim);font-family:var(--f-num)}
-
-.skel{height:120px;border-radius:14px;background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%);
-  background-size:400% 100%;animation:sh 1.4s infinite}
+.skel{height:120px;border-radius:14px;background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%);background-size:400% 100%;animation:sh 1.4s infinite}
 @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
-
 .note{font-size:12px;color:var(--dim);margin:14px 2px 0;line-height:1.7}
 .back-btn{display:inline-flex;align-items:center;gap:6px;margin-bottom:12px;text-decoration:none;color:var(--accent);font-size:13px;font-weight:600}
 .back-btn:hover{text-decoration:underline}
@@ -123,643 +79,112 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <body>
 <div dir="rtl">
 <div class="wrap">
-  <header>
-    <div class="hrow">
-      <h1>🏆 الفرص الذهبية</h1>
-      <span class="sub" id="stamp"></span>
-      <span class="spacer"></span>
-      <button id="reload" type="button">تحديث</button>
-    </div>
-  </header>
-
-  <a href="index.html" class="back-btn">→ العودة للقائمة الرئيسية</a>
-
-  <div class="gold-bar">
-    <span class="icon">🥇</span>
-    <div>
-      <div class="title">أقوى 5 أسهم للاستثمار</div>
-      <div class="desc">تحليل فني ومالي واساسي شامل مع أخبار حقيقية — اختيار آلي مبني على مؤشرات متعددة</div>
-    </div>
-  </div>
-
-  <div class="golden-list" id="list"></div>
-
-  <p class="note" id="foot"></p>
+<header>
+<div class="hrow"><h1>🏆 الفرص الذهبية</h1><span class="sub" id="stamp"></span><span class="spacer"></span><button id="reload" type="button">تحديث</button></div>
+</header>
+<a href="index.html" class="back-btn">→ العودة للقائمة الرئيسية</a>
+<div class="gold-bar"><span class="icon">🥇</span><div><div class="title">أقوى 5 أسهم للاستثمار</div><div class="desc">تحليل فني ومالي واساسي شامل مع أخبار حقيقية — اختيار آلي مبني على مؤشرات متعددة</div></div></div>
+<div class="golden-list" id="list"></div>
+<p class="note" id="foot"></p>
 </div>
 </div>
-
 <script>
-const WORKER = 'https://egx-data.tahamahm3.workers.dev';
-const MIRROR = 'https://api.allorigins.win/raw?url=';
-const buildURL = (tk) => {
-  const q = `${WORKER}/${tk}.CA?range=1y&interval=1d&t=${Date.now()}`;
-  return MIRROR + encodeURIComponent(q);
-};
-const TV = 'https://scanner.tradingview.com/symbol?symbol=EGX%3A';
-const TV_FIELDS = 'close,change,change_abs,RSI,SMA20,SMA50,SMA200,volume,average_volume_10d_calc,' +
-                'price_52_week_high,price_52_week_low,description,ATR,Volatility.D,Recommend.All,' +
-                'Pivot.M.Classic.S1,Pivot.M.Classic.S2,Pivot.M.Classic.S3,' +
-                'Pivot.M.Classic.R1,Pivot.M.Classic.R2,Pivot.M.Classic.R3,Pivot.M.Classic.Middle,' +
-                'High.1M,Low.1M,High.3M,Low.3M';
-
-const TV_SCAN = 'https://scanner.tradingview.com/egypt/scan';
-const TV_COLS = ['close','change','RSI','SMA20','SMA50','SMA200','volume','average_volume_10d_calc',
-                 'price_52_week_high','price_52_week_low','description','type',
-                 'ATR','Volatility.D','Recommend.All',
-                 'Pivot.M.Classic.S1','Pivot.M.Classic.S2','Pivot.M.Classic.S3',
-                 'Pivot.M.Classic.R1','Pivot.M.Classic.R2','Pivot.M.Classic.R3',
-                 'Pivot.M.Classic.Middle','High.1M','Low.1M','High.3M','Low.3M'];
-
-const NAMES = {
-'COMI':'التجاري الدولي','SWDY':'السويدي إليكتريك','ETEL':'المصرية للاتصالات','TMGH':'طلعت مصطفى',
-'EGAL':'مصر للألومنيوم','MFPC':'موبكو','QNBE':'بنك قطر الوطني','HDBK':'بنك التعمير والإسكان',
-'ABUK':'أبو قير للأسمدة','ALCN':'الإسكندرية لتداول الحاويات','ORAS':'أوراسكوم كونستراكشون','EAST':'الشرقية للدخان',
-'EFIH':'إي فاينانس','ADIB':'مصرف أبو ظبي الإسلامي','EMFD':'إعمار مصر','FWRY':'فوري',
-'SCTS':'قناة السويس لتوطين التكنولوجيا','CANA':'بنك قناة السويس','ORHD':'أوراسكوم للتنمية مصر','GPPL':'جولدن بيراميدز بلازا',
-'VLMR':'فالمور القابضة بالدولار','VLMRA':'فالمور القابضة بالجنيه','EFID':'إيديتا','PHDC':'بالم هيلز',
-'JUFO':'جهينة','HRHO':'إي إف جي القابضة - هيرميس','OCDI':'سوديك','GBCO':'جي بي كورب',
-'FAIT':'بنك فيصل الإسلامي بالجنيه','FAITA':'بنك فيصل الإسلامي بالدولار','FERC':'فيركيم مصر للأسمدة','BTFH':'بلتون القابضة',
-'CIEB':'كريدي أجريكول','HELI':'مصر الجديدة للإسكان','BIOC':'جلاكسو سميثكلاين','EXPA':'البنك المصري لتنمية الصادرات',
-'RAYA':'راية القابضة','CCAP':'القلعة للاستثمارات المالية','EGCH':'كيما','IRON':'الحديد والصلب المصرية',
-'ARCC':'العربية للأسمنت','VALU':'ڤاليو','CIRA':'سيرا للتعليم','TAQA':'طاقة عربية',
-'CLHO':'مستشفى كليوباترا','SCEM':'أسمنت سيناء','PHAR':'إيبيكو','MTIE':'إم إم جروب',
-'ORWE':'النساجون الشرقيون','POUL':'القاهرة للدواجن','SKPC':'سيدي كرير للبتروكيماويات','MCQE':'مصر للأسمنت قنا',
-'AMOC':'الإسكندرية للزيوت المعدنية','MOIL':'ماريدايف','UBEE':'المصرف المتحد','EGSA':'نايل سات',
-'EGTS':'المصرية للمنتجعات السياحية','EFIC':'المالية والصناعية المصرية','SAUD':'بنك البركة مصر','NIPH':'النيل للأدوية',
-'MASR':'مدينة مصر','MBSC':'مصر بني سويف للأسمنت','TALM':'تعليم لخدمات الإدارة','EGBE':'البنك المصري الخليجي',
-'KORA':'قرة إنرجي','MHOT':'مصر للفنادق','ATQA':'مصر الوطنية للصلب عتاقة','BINV':'بي إنفستمنتس القابضة',
-'ISPH':'ابن سينا فارما','CICH':'سي آي كابيتال','AMES':'الإسكندرية للخدمات الطبية','RMDA':'راميدا',
-'CSAG':'القناة للتوكيلات الملاحية','NAPR':'الوطنية للطباعة','OIH':'أوراسكوم للاستثمار القابضة','IFAP':'الدولية للمحاصيل الزراعية',
-'MIPH':'مينا فارم للأدوية','AMIA':'الملتقى العربي للاستثمارات','MOIN':'المهندس للتأمين','CPCI':'القاهرة للأدوية',
-'MPRC':'مدينة الإنتاج الإعلامي','OLFI':'عبور لاند','EGAS':'غاز مصر','PHTV':'بيراميزا للفنادق والقرى السياحية',
-'ISMQ':'الحديد والصلب للمناجم والمحاجر','MPCI':'ممفيس للأدوية','ZMID':'زهراء المعادي','PRDC':'بايونيرز بروبرتيز',
-'BONY':'بنيان للتنمية والتجارة','AXPH':'الإسكندرية للأدوية','SUGR':'الدلتا للسكر','DOMT':'دومتي',
-'GOUR':'جورميه مصر','SPHT':'الشمس بيراميدز للفنادق','ELEC':'الكابلات الكهربائية المصرية','SPIN':'الإسكندرية للغزل والنسيج',
-'NINH':'مستشفى النزهة الدولي','ARAB':'المطورون العرب القابضة','ACAP':'إيه كابيتال القابضة','OCPH':'أكتوبر فارما',
-'MCRO':'ماكرو جروب','AFMC':'مطاحن ومخابز الإسكندرية','ENGC':'أيكون','KABO':'كابو',
-'MICH':'مصر لصناعة الكيماويات','CNFN':'كونتكت المالية القابضة','SVCE':'جنوب الوادي للأسمنت','WCDF':'مطاحن وسط وغرب الدلتا',
-'GSSC':'العامة للصوامع والتخزين','DSCW':'دايس للملابس الجاهزة','SDTI':'شارم دريمز للاستثمار السياحي','SAIB':'بنك الشركة المصرفية العربية الدولية',
-'MFSC':'مصر للأسواق الحرة','OFH':'أو بي المالية القابضة','ACGC':'العربية لحليج الأقطان','AMER':'عامر جروب',
-'UNIT':'المتحدة للإسكان والتعمير','KZPC':'كفر الزيات للمبيدات والكيماويات','AJWA':'أجواء للصناعات الغذائية','GDWA':'جدوى للتنمية الصناعية',
-'UEFM':'مطاحن مصر العليا','CRST':'كريست مارك للمقاولات والتطوير العقاري','ADCI':'العربية للأدوية أدكو','ACTF':'أكت فاينانشال',
-'GPIM':'جي بي آي للنمو العمراني','ELKA':'القاهرة للإسكان والتعمير','ASCM':'أسيك للتعدين أسكوم','CFGH':'كونكريت فاشون جروب',
-'ALRA':'أطلس للاستثمار والصناعات الغذائية','ELSH':'الشمس للإسكان والتعمير','LCSW':'ليسيكو مصر','NAHO':'النعيم القابضة',
-'ICFC':'الدولية للأسمدة والكيماويات','INFI':'الإسماعيلية الوطنية للصناعات الغذائية','ZEOT':'الزيوت المستخلصة','MPCO':'المنصورة للدواجن',
-'ACAMD':'العربية لإدارة وتطوير الأصول','ATLC':'التوفيق للتأجير التمويلي','GTWL':'جولدن تكس للاصواف','EDFM':'مطاحن شرق الدلتا',
-'ETRS':'إيجيترانس نوسكو','ISMA':'الإسماعيلية مصر للدواجن','MAAL':'مرسيليا المصرية الخليجية','DAPH':'التعمير والاستشارات الهندسية',
-'NARE':'النعيم العقارية','SMFR':'سماد مصر إيجيفرت','CEFM':'مطاحن مصر الوسطى','PHGC':'بريميم هيلثكير جروب',
-'MILS':'مطاحن ومخابز شمال القاهرة','SNFC':'الشرقية الوطنية للأمن الغذائي','ICID':'الدولية للاستثمار والتنمية','GGRN':'جو جرين للاستثمار الزراعي',
-'IDRE':'الإسماعيلية للتطوير والتنمية العمرانية','NCCW':'النصر للأعمال المدنية','RACC':'راية لخدمات مراكز الاتصالات','ADPC':'آراب ديري باندا',
-'EALR':'العربية لاستصلاح الأراضي','KRDI':'نهر الخير للتنمية والاستثمار الزراعي','MOSC':'مصر للزيوت والصابون','EHDR':'المصريين للإسكان',
-'AALR':'العامة لاستصلاح الأراضي','ECAP':'العز للسيراميك والبورسلين الجوهرة','DTPP':'دلتا للطباعة والتغليف','WKOL':'وادي كوم أمبو لاستصلاح الأراضي',
-'CERA':'العربية للخزف ريماس','ODIN':'أودن للاستثمارات المالية','MENA':'مينا للاستثمار السياحي والعقاري','GGCC':'الجيزة العامة للمقاولات',
-'SCFM':'مطاحن جنوب القاهرة والجيزة','CAED':'القاهرة للخدمات التعليمية','ASPI':'أسباير كابيتال القابضة','DEIN':'الدلتا للتأمين',
-'MBEG':'إم بي للهندسة','PRCL':'العامة لمنتجات الخزف والصيني','SIPC':'سبأ الدولية للأدوية','LUTS':'لوتس للاستثمارات الزراعية',
-'NDRL':'الحفر الوطنية','IEEC':'المشروعات الصناعية والهندسية','AIHC':'العربية للاستثمارات القابضة','NHPS':'الوطنية للإسكان للنقابات المهنية',
-'SEIG':'السعودية المصرية للاستثمار بالجنيه','SEIGA':'السعودية المصرية للاستثمار بالدولار','UEGC':'الصعيد العامة للمقاولات','MEPA':'العبوات الطبية',
-'AIDC':'العربية للاستثمار والتنمية','GTEX':'جي تكس للاستثمارات التجارية والصناعية','OBRI':'العبور للاستثمار العقاري','ALUM':'الألومنيوم العربية',
-'COSG':'القاهرة للزيوت والصابون','TANM':'تنمية للاستثمار العقاري','POCO':'بورسعيد لتداول الحاويات','RREI':'العربية للاستثمار العقاري',
-'RUBX':'روبكس العالمية','AFDI':'الأهلي للتنمية والاستثمار','EBSC':'مصول إي إس بي للوساطة','RTVC':'رمكو لإنشاء القرى السياحية',
-'TWSA':'توسع للتخصيم','AMII':'العربية للصناعات المعدنية والاستثمارات الصناعية','UNIP':'يونيفرسال لصناعة مواد التعبئة','ICLE':'الدولية للتأجير التمويلي إنكوليس',
-'MEGM':'الشرق الأوسط لصناعة الزجاج','PRMH':'برايم القابضة','APSW':'العربية وبولفارا للغزل والنسيج','EASB':'ثمار لتداول الأوراق المالية',
-'ROTO':'رواد السياحة','MOED':'المصرية لنظم التعليم الحديثة','TYCN':'تايكون القابضة','SPMD':'سبيد ميديكال',
-'RAKT':'العامة لصناعة الورق راكتا','KWIN':'القاهرة الوطنية للاستثمار','EEII':'العربية للصناعات الهندسية','AREH':'المجموعة المصرية العقارية',
-'CCRS':'الخليجية الكندية للاستثمار العقاري','FCMD':'الدولية للصناعات الطبية إيكمي','EPCO':'المصرية للدواجن','GRCA':'جراند للاستثمار المالي',
-'GIHD':'الغربية الإسلامية للتنمية العمرانية','MMAT':'مرسى علم للتنمية السياحية','TRTO':'عبر المحيطات للسياحة','ELNA':'النصر لتصنيع الحاصلات الزراعية',
-'ELWA':'الوادي العالمية للاستثمار والتنمية','DGTZ':'ديجيتايز للاستثمار والتقنية','DCCC':'دمياط لتداول الحاويات','NEDA':'شمال الصعيد للتنمية والإنتاج الزراعي',
-'EPPK':'الأهرام للطباعة والتغليف','GMCI':'جي إم سي للاستثمارات','EOSB':'العروبة للسمسرة','CPME':'كاتليست بارتنرز',
-'COPR':'كوبر للاستثمار التجاري والتطوير العقاري'
-};
-
-const DEFAULT = ['COMI', 'SWDY', 'ETEL', 'TMGH', 'EGAL', 'MFPC', 'QNBE', 'HDBK', 'ABUK', 'ALCN', 'ORAS', 'EAST', 'EFIH', 'ADIB', 'EMFD', 'FWRY', 'SCTS', 'CANA', 'ORHD', 'GPPL', 'VLMR', 'VLMRA', 'EFID', 'PHDC', 'JUFO', 'HRHO', 'OCDI', 'GBCO', 'FAIT', 'FAITA', 'FERC', 'BTFH', 'CIEB', 'HELI', 'BIOC', 'EXPA', 'RAYA', 'CCAP', 'EGCH', 'IRON', 'ARCC', 'VALU', 'CIRA', 'TAQA', 'CLHO', 'SCEM', 'PHAR', 'MTIE', 'ORWE', 'POUL', 'SKPC', 'MCQE', 'AMOC', 'MOIL', 'UBEE', 'EGSA', 'EGTS', 'EFIC', 'SAUD', 'NIPH', 'MASR', 'MBSC', 'TALM', 'EGBE', 'KORA', 'MHOT', 'ATQA', 'BINV', 'ISPH', 'CICH', 'AMES', 'RMDA', 'CSAG', 'NAPR', 'OIH', 'IFAP', 'MIPH', 'AMIA', 'MOIN', 'CPCI', 'MPRC', 'OLFI', 'EGAS', 'PHTV', 'ISMQ', 'MPCI', 'ZMID', 'PRDC', 'BONY', 'AXPH', 'SUGR', 'DOMT', 'GOUR', 'SPHT', 'ELEC', 'SPIN', 'NINH', 'ARAB', 'ACAP', 'OCPH', 'MCRO', 'AFMC', 'ENGC', 'KABO', 'MICH', 'CNFN', 'SVCE', 'WCDF', 'GSSC', 'DSCW', 'SDTI', 'SAIB', 'MFSC', 'OFH', 'ACGC', 'AMER', 'UNIT', 'KZPC', 'AJWA', 'GDWA', 'UEFM', 'CRST', 'ADCI', 'ACTF', 'GPIM', 'ELKA', 'ASCM', 'CFGH', 'ALRA', 'ELSH', 'LCSW', 'NAHO', 'ICFC', 'INFI', 'ZEOT', 'MPCO', 'ACAMD', 'ATLC', 'GTWL', 'EDFM', 'ETRS', 'ISMA', 'MAAL', 'DAPH', 'NARE', 'SMFR', 'CEFM', 'PHGC', 'MILS', 'SNFC', 'ICID', 'GGRN', 'IDRE', 'NCCW', 'RACC', 'ADPC', 'EALR', 'KRDI', 'MOSC', 'EHDR', 'AALR', 'ECAP', 'DTPP', 'WKOL', 'CERA', 'ODIN', 'MENA', 'GGCC', 'SCFM', 'CAED', 'ASPI', 'DEIN', 'MBEG', 'PRCL', 'SIPC', 'LUTS', 'NDRL', 'IEEC', 'AIHC', 'NHPS', 'SEIG', 'SEIGA', 'UEGC', 'MEPA', 'AIDC', 'GTEX', 'OBRI', 'ALUM', 'COSG', 'TANM', 'POCO', 'RREI', 'RUBX', 'AFDI', 'EBSC', 'RTVC', 'TWSA', 'AMII', 'UNIP', 'ICLE', 'MEGM', 'PRMH', 'APSW', 'EASB', 'ROTO', 'MOED', 'TYCN', 'SPMD', 'RAKT', 'KWIN', 'EEII', 'AREH', 'CCRS', 'FCMD', 'EPCO', 'GRCA', 'GIHD', 'MMAT', 'TRTO', 'ELNA', 'ELWA', 'DGTZ', 'DCCC', 'NEDA', 'EPPK', 'GMCI', 'EOSB', 'CPME', 'COPR'];
-
-const $ = id => document.getElementById(id);
-const fmt = (n,d=2) => n==null||!isFinite(n) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
-const pct = n => n==null||!isFinite(n) ? '—' : (n>=0?'+':'')+n.toFixed(2)+'%';
-const cls = n => n==null?'flat':n>0.0001?'up':n<-0.0001?'down':'flat';
-const dp = v => { const x=Math.abs(v||0); return x>=10 ? 2 : x>=1 ? 3 : x>=0.1 ? 4 : 5; };
-const fmn = v => fmt(v, dp(v));
-
-/* ---------- جلب البيانات ---------- */
-async function fetchT(url, ms, opts){
-  const ctl = new AbortController();
-  const to = setTimeout(()=>ctl.abort(), ms);
-  try { return await fetch(url, Object.assign({cache:'no-store', signal:ctl.signal}, opts||{})); }
-  finally { clearTimeout(to); }
-}
+const TV_SCAN="https://scanner.tradingview.com/egypt/scan";
+const TV_COLS=["close","change","RSI","SMA20","SMA50","SMA200","volume","average_volume_10d_calc","price_52_week_high","price_52_week_low","description","type","ATR","Volatility.D","Recommend.All","Pivot.M.Classic.S1","Pivot.M.Classic.S2","Pivot.M.Classic.S3","Pivot.M.Classic.R1","Pivot.M.Classic.R2","Pivot.M.Classic.R3","Pivot.M.Classic.Middle","High.1M","Low.1M","High.3M","Low.3M"];
+const BLUE_CHIPS=["COMI","SWDY","ETEL","TMGH","EGAL","MFPC","QNBE","HDBK","ABUK","ALCN","ORAS","EAST","EFIH","ADIB","EMFD","FWRY","SCTS","CANA","ORHD","GPPL","VLMR","VLMRA","EFID","PHDC","JUFO","HRHO","OCDI","GBCO","FAIT","FAITA"];
+const NAMES={"COMI":"التجاري الدولي","SWDY":"السويدي إليكتريك","ETEL":"المصرية للاتصالات","TMGH":"طلعت مصطفى","EGAL":"مصر للألومنيوم","MFPC":"موبكو","QNBE":"بنك قطر الوطني","HDBK":"بنك التعمير والإسكان","ABUK":"أبو قير للأسمدة","ALCN":"الإسكندرية لتداول الحاويات","ORAS":"أوراسكوم كونستراكشون","EAST":"الشرقية للدخان","EFIH":"إي فاينانس","ADIB":"مصرف أبو ظبي الإسلامي","EMFD":"إعمار مصر","FWRY":"فوري","SCTS":"قناة السويس لتوطين التكنولوجيا","CANA":"بنك قناة السويس","ORHD":"أوراسكوم للتنمية مصر","GPPL":"جولدن بيراميدز بلازا","VLMR":"فالمور القابضة بالدولار","VLMRA":"فالمور القابضة بالجنيه","EFID":"إيديتا","PHDC":"بالم هيلز","JUFO":"جهينة","HRHO":"إي إف جي القابضة - هيرميس","OCDI":"سوديك","GBCO":"جي بي كورب","FAIT":"بنك فيصل الإسلامي بالجنيه","FAITA":"بنك فيصل الإسلامي بالدولار"};
+const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=n=>n==null||!isFinite(n)?"—":(n>=0?"+":"")+n.toFixed(2)+"%";
+const cls=n=>n==null?"flat":n>0.0001?"up":n<-0.0001?"down":"flat";
+const dp=v=>{const x=Math.abs(v||0);return x>=10?2:x>=1?3:x>=0.1?4:5};
+const fmn=v=>fmt(v,dp(v));
 
 async function fetchMarket(){
-  const body = JSON.stringify({
-    symbols: { tickers: DEFAULT.map(t=>'EGX:'+t), query: { types: [] } },
-    columns: TV_COLS,
-  });
-  const r = await fetchT(TV_SCAN, 20000, {method:'POST', headers:{'Content-Type':'text/plain'}, body});
-  if(!r.ok) throw new Error('scan '+r.status);
-  const j = await r.json();
-  if(!j || !j.data) throw new Error('scan empty');
+  const body=JSON.stringify({symbols:{tickers:BLUE_CHIPS.map(t=>"EGX:"+t),query:{types:[]}},columns:TV_COLS});
+  const r=await fetch(TV_SCAN,{method:"POST",headers:{"Content-Type":"text/plain"},body});
+  if(!r.ok)throw new Error("scan "+r.status);
+  const j=await r.json();
+  if(!j||!j.data)throw new Error("scan empty");
   return j.data;
 }
 
-function tvItem(tk, d){
-  const v = {};
-  TV_COLS.forEach((c,i)=>{ v[c]=d[i]; });
-  return {tk, px:v.close, chg:v.change,
-    date:new Date(Date.now()+3*3600000).toISOString().slice(0,10),
-    s20:v.SMA20, s50:v.SMA50, s200:v.SMA200, rsi:v.RSI,
-    vol:v.volume, vAvg:v.average_volume_10d_calc,
-    hi52:v.price_52_week_high, lo52:v.price_52_week_low,
-    atr:v.ATR, vola:v['Volatility.D'], rec:v['Recommend.All'],
-    pS1:v['Pivot.M.Classic.S1'], pS2:v['Pivot.M.Classic.S2'], pS3:v['Pivot.M.Classic.S3'],
-    pR1:v['Pivot.M.Classic.R1'], pR2:v['Pivot.M.Classic.R2'], pR3:v['Pivot.M.Classic.R3'],
-    pM:v['Pivot.M.Classic.Middle'],
-    hi1m:v['High.1M'], lo1m:v['Low.1M'], hi3m:v['High.3M'], lo3m:v['Low.3M'],
-    en:v.description, src:'مباشر (TradingView)'};
+function tvItem(tk,d){
+  const v={};
+  TV_COLS.forEach((c,i)=>{v[c]=d[i]});
+  return{tk,px:v.close,chg:v.change,s20:v.SMA20,s50:v.SMA50,s200:v.SMA200,rsi:v.RSI,vol:v.volume,vAvg:v.average_volume_10d_calc,hi52:v.price_52_week_high,lo52:v.price_52_week_low,atr:v.ATR,vola:v["Volatility.D"],rec:v["Recommend.All"],pS1:v["Pivot.M.Classic.S1"],pS2:v["Pivot.M.Classic.S2"],pS3:v["Pivot.M.Classic.S3"],pR1:v["Pivot.M.Classic.R1"],pR2:v["Pivot.M.Classic.R2"],pR3:v["Pivot.M.Classic.R3"],pM:v["Pivot.M.Classic.Middle"],hi1m:v["High.1M"],lo1m:v["Low.1M"],hi3m:v["High.3M"],lo3m:v["Low.3M"],en:v.description,src:"مباشر (TradingView)"};
 }
 
-/* ---------- التحليل الفني المتقدم ---------- */
-
-// MACD
-function MACD(c, fast=12, slow=26, signal=9){
-  if(c.length < slow + signal) return {macd:null, signal:null, hist:null};
-  const ema = (a, n) => {
-    const k = 2/(n+1);
-    let e = a[0];
-    const out = [e];
-    for(let i=1; i<a.length; i++){ e = a[i]*k + e*(1-k); out.push(e); }
-    return out;
-  };
-  const ef = ema(c, fast), es = ema(c, slow);
-  const macdLine = c.map((_,i) => ef[i] - es[i]);
-  const sig = ema(macdLine, signal);
-  const hist = macdLine.map((v,i) => v - sig[i]);
-  return {macd: macdLine[macdLine.length-1], signal: sig[sig.length-1], hist: hist[hist.length-1]};
+function goldenScore(a){
+  let score=0;
+  const reasons=[];
+  if(a.s50>a.s200){score+=15;reasons.push("المتوسط 50 فوق 200 — اتجاه صاعد طويل الأمد")}
+  if(a.px>a.s20){score+=5;reasons.push("السعر فوق متوسط 20 — زخم قصير إيجابي")}
+  if(a.px>a.s50){score+=5;reasons.push("السعر فوق متوسط 50 — اتجاه متوسط إيجابي")}
+  if(a.rsi!=null&&a.rsi>=50&&a.rsi<=70){score+=10;reasons.push("RSI "+a.rsi.toFixed(0)+" — زخم صحي غير مشبع")}
+  if(a.rec!=null&&a.rec>0){score+=10;reasons.push("تقييم فني إيجابي "+a.rec.toFixed(2))}
+  if(a.vola!=null&&a.vola<30){score+=10;reasons.push("تقلب "+a.vola.toFixed(1)+"% — استقرار جيد")}
+  if(a.atr!=null&&a.atr<a.px*0.03){score+=10;reasons.push("تقلب يومي معقول — مناسب للاستثمار طويل الأمد")}
+  if(a.pS1!=null&&a.px>a.pS1){score+=8;reasons.push("السعر فوق دعم البيفوت — مستوى دخول جيد")}
+  if(a.pR1!=null&&a.px<a.pR1){score+=7;reasons.push("السعر تحت مقاومة البيفوت — مسار صاعد")}
+  if(a.vol>a.vAvg*1.3){score+=5;reasons.push("حجم تداول مرتفع — اهتمام مستثمرين")}
+  if(a.px>a.hi52*0.9){score+=5;reasons.push("قرب أعلى 52 أسبوعاً — زخم قوي")}
+  return{score:Math.min(score,100),reasons};
 }
 
-// Bollinger Bands
-function Bollinger(c, n=20, mult=2){
-  if(c.length < n) return {upper:null, middle:null, lower:null, pctB:null};
-  const slice = c.slice(-n);
-  const mid = slice.reduce((s,v)=>s+v,0)/n;
-  const sd = Math.sqrt(slice.reduce((s,v)=>s+(v-mid)**2,0)/n);
-  const upper = mid + mult*sd, lower = mid - mult*sd;
-  const pctB = (c[c.length-1] - lower) / (upper - lower);
-  return {upper, middle:mid, lower, pctB};
+function cardHTML(a,rank,scoreData){
+  const k=cls(a.chg);
+  const score=scoreData.score;
+  const scoreColor=score>=70?"var(--up)":score>=50?"var(--gold)":"var(--down)";
+  const atr=a.atr||a.px*0.02;
+  const stop=a.px-atr*2;
+  const t1=a.px+atr*3;
+  const t2=a.px+atr*5;
+  const rr=((t1-a.px)/(a.px-stop)).toFixed(1);
+  return '<div class="g-card">'
+    +'<div class="rank">'+rank+'</div>'
+    +'<div class="g-header"><div><div class="g-tk">'+a.tk+'.CA</div><div class="g-name">'+(NAMES[a.tk]||a.name||'')+'</div></div><span class="spacer" style="flex:1"></span><div style="text-align:end"><div class="g-px '+k+'">'+fmn(a.px)+'</div><div class="g-chg '+k+'">'+pct(a.chg)+'</div></div></div>'
+    +'<div class="g-score"><span>التقييم الذهبي</span><div class="bar"><div class="fill" style="width:'+score+'%;background:'+scoreColor+'"></div></div><span class="val">'+score+'/100</span></div>'
+    +'<div class="g-indicators">'
+    +'<div class="g-ind"><div class="label">RSI</div><div class="value '+(a.rsi>=70?"down":a.rsi<=30?"up":"neutral")+'">'+(a.rsi?a.rsi.toFixed(0):"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">متوسط 20</div><div class="value '+(a.px>a.s20?"up":"down")+'">'+(a.s20?fmn(a.s20):"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">متوسط 50</div><div class="value '+(a.px>a.s50?"up":"down")+'">'+(a.s50?fmn(a.s50):"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">متوسط 200</div><div class="value '+(a.px>a.s200?"up":"down")+'">'+(a.s200?fmn(a.s200):"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">ATR</div><div class="value neutral">'+(a.atr?a.atr.toFixed(2):"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">تقلب</div><div class="value neutral">'+(a.vola?a.vola.toFixed(1):"—")+'%</div></div>'
+    +'<div class="g-ind"><div class="label">حجم/متوسط</div><div class="value '+(a.vol>a.vAvg*1.5?"up":"neutral")+'">'+(a.vAvg?(a.vol/a.vAvg).toFixed(1)+"x":"—")+'</div></div>'
+    +'<div class="g-ind"><div class="label">أعلى 52</div><div class="value neutral">'+(a.hi52?fmn(a.hi52):"—")+'</div></div>'
+    +'</div>'
+    +'<div class="g-analysis"><h3>📊 التحليل الفني</h3><ul>'+scoreData.reasons.map(r=>"<li>"+r+"</li>").join("")+'</ul>'
+    +'<h3>🎯 خطة الاستثمار</h3><div class="g-plan">'
+    +'<div class="cell entry"><span>الدخول</span><b>'+fmn(a.px)+'</b></div>'
+    +'<div class="cell stop"><span>وقف الخسارة</span><b>'+fmn(stop)+'</b></div>'
+    +'<div class="cell target"><span>الهدف الأول (3 شهور)</span><b>'+fmn(t1)+'</b></div>'
+    +'<div class="cell target"><span>الهدف الثاني (6 شهور)</span><b>'+fmn(t2)+'</b></div>'
+    +'<div class="cell"><span>عائد/مخاطرة</span><b>'+rr+':1</b></div>'
+    +'</div></div></div>';
 }
-
-// Stochastic
-function Stochastic(h, l, c, n=14){
-  if(c.length < n) return {k:null, d:null};
-  const ks = [];
-  for(let i=n-1; i<c.length; i++){
-    const hh = Math.max(...h.slice(i-n+1, i+1));
-    const ll = Math.min(...l.slice(i-n+1, i+1));
-    ks.push(hh===ll ? 50 : (c[i]-ll)/(hh-ll)*100);
-  }
-  const k = ks[ks.length-1];
-  const d = ks.length >= 3 ? ks.slice(-3).reduce((s,v)=>s+v,0)/3 : k;
-  return {k, d};
-}
-
-// ADX (Average Directional Index)
-function ADX(h, l, c, n=14){
-  if(c.length < n*2) return {adx:null, pdi:null, ndi:null};
-  let pdmS=0, ndmS=0, trS=0;
-  for(let i=1; i<=n; i++){
-    const up = h[i]-h[i-1], dn = l[i-1]-l[i];
-    const pdm = up>dn && up>0 ? up : 0;
-    const ndm = dn>up && dn>0 ? dn : 0;
-    const tr = Math.max(h[i]-l[i], Math.abs(h[i]-c[i-1]), Math.abs(l[i]-c[i-1]));
-    pdmS+=pdm; ndmS+=ndm; trS+=tr;
-  }
-  let pdi = trS ? pdmS/trS*100 : 0;
-  let ndi = trS ? ndmS/trS*100 : 0;
-  let dx = pdi+ndi ? Math.abs(pdi-ndi)/(pdi+ndi)*100 : 0;
-  let adx = dx;
-  for(let i=n+1; i<c.length; i++){
-    const up = h[i]-h[i-1], dn = l[i-1]-l[i];
-    const pdm = up>dn && up>0 ? up : 0;
-    const ndm = dn>up && dn>0 ? dn : 0;
-    const tr = Math.max(h[i]-l[i], Math.abs(h[i]-c[i-1]), Math.abs(l[i]-c[i-1]));
-    pdmS = pdmS - pdmS/n + pdm;
-    ndmS = ndmS - ndmS/n + ndmS;
-    trS = trS - trS/n + tr;
-    pdi = trS ? pdmS/trS*100 : 0;
-    ndi = trS ? ndmS/trS*100 : 0;
-    dx = pdi+ndi ? Math.abs(pdi-ndi)/(pdi+ndi)*100 : 0;
-    adx = (adx*(n-1) + dx)/n;
-  }
-  return {adx, pdi, ndi};
-}
-
-// OBV (On-Balance Volume)
-function OBV(c, v){
-  if(c.length < 2) return {obv:null, trend:null};
-  let obv = 0;
-  for(let i=1; i<c.length; i++){
-    if(c[i] > c[i-1]) obv += v[i];
-    else if(c[i] < c[i-1]) obv -= v[i];
-  }
-  const recent = c.slice(-10);
-  const obvRecent = [];
-  let o = 0;
-  for(let i=1; i<recent.length; i++){
-    if(recent[i] > recent[i-1]) o += v[v.length-10+i] || 0;
-    else if(recent[i] < recent[i-1]) o -= v[v.length-10+i] || 0;
-    obvRecent.push(o);
-  }
-  const trend = obvRecent.length >= 2 ? (obvRecent[obvRecent.length-1] > obvRecent[0] ? 'صاعد' : 'هابط') : null;
-  return {obv, trend};
-}
-
-// ATR
-function ATR(h, l, c, n=14){
-  if(c.length < n+1) return null;
-  let sum = 0;
-  for(let i=1; i<=n; i++){
-    sum += Math.max(h[i]-l[i], Math.abs(h[i]-c[i-1]), Math.abs(l[i]-c[i-1]));
-  }
-  let atr = sum/n;
-  for(let i=n+1; i<c.length; i++){
-    const tr = Math.max(h[i]-l[i], Math.abs(h[i]-c[i-1]), Math.abs(l[i]-c[i-1]));
-    atr = (atr*(n-1) + tr)/n;
-  }
-  return atr;
-}
-
-// حساب المؤشرات الشاملة
-function calcIndicators(c, h, l, v){
-  const macd = MACD(c);
-  const bb = Bollinger(c);
-  const stoch = Stochastic(h, l, c);
-  const adx = ADX(h, l, c);
-  const obv = OBV(c, v);
-  const atr = ATR(h, l, c);
-  return {macd, bb, stoch, adx, obv, atr};
-}
-
-/* ---------- التحليل الأساسي (محاكاة بناءً على البيانات المتاحة) ---------- */
-function fundamentalAnalysis(a){
-  const pe = a.px > 0 ? (a.px * 10) / (a.vol || 1) : null;
-  const pb = a.px > 0 ? a.px / (a.px * 0.8) : null;
-  const roe = a.rec != null ? a.rec * 20 : null;
-  const debtRatio = a.vola != null ? Math.min(a.vola * 2, 80) : null;
-  const revenueGrowth = a.chg != null ? a.chg * 0.5 : null;
-  
-  return {pe, pb, roe, debtRatio, revenueGrowth};
-}
-
-/* ---------- أخبار حقيقية من مصادر موثوقة ---------- */
-async function fetchRealNews(){
-  const news = [];
-  
-  // جلب أخبار من مصادر متعددة
-  try {
-    const r1 = await fetchT('https://egx.news/ar', 8000);
-    if(r1.ok){
-      const t = await r1.text();
-      const matches = t.match(/<h[23][^>]*>([^<]{10,100})<\/h[23]>/g) || [];
-      matches.slice(0, 3).forEach(m => {
-        const title = m.replace(/<[^>]+>/g, '').trim();
-        if(title.length > 10) news.push({title, source: 'EGX News'});
-      });
-    }
-  } catch(e){}
-  
-  try {
-    const r2 = await fetchT('https://www.investing.com/indices/egx30-news', 8000);
-    if(r2.ok){
-      const t = await r2.text();
-      const matches = t.match(/<a[^>]*class="[^"]*title[^"]*"[^>]*>([^<]{15,150})<\/a>/g) || [];
-      matches.slice(0, 2).forEach(m => {
-        const title = m.replace(/<[^>]+>/g, '').trim();
-        if(title.length > 15) news.push({title, source: 'Investing.com'});
-      });
-    }
-  } catch(e){}
-  
-  try {
-    const r3 = await fetchT('https://english.mubasher.info/markets/EGX/', 8000);
-    if(r3.ok){
-      const t = await r3.text();
-      const matches = t.match(/<a[^>]*>([^<]{20,150})<\/a>/g) || [];
-      matches.slice(0, 2).forEach(m => {
-        const title = m.replace(/<[^>]+>/g, '').trim();
-        if(title.length > 20 && !title.includes('http')) news.push({title, source: 'Mubasher'});
-      });
-    }
-  } catch(e){}
-  
-  // أخبار عامة عن السوق
-  news.push({title: 'البنك المركزي يسحب سيولة بقيمة 536.95 مليار جنيه من النظام المصرفي', source: 'CBE News'});
-  news.push({title: 'EGX30 يغلق عند 53,931.92 نقطة متراجعاً 0.11%', source: 'Market Data'});
-  news.push({title: 'فوري تسجل إيرادات 2.4 مليار جنيه في الربع الأول 2026', source: 'Company News'});
-  news.push({title: 'البنك المركزي يطرح سندات بقيمة 8 مليارات جنيه', source: 'CBE News'});
-  news.push({title: 'هيرميس تسجل أرباح 220.5 مليون جنيه في الربع الأول 2026', source: 'Company News'});
-  
-  return news.slice(0, 8);
-}
-
-/* ---------- تحليل الأخبار للسهم ---------- */
-function newsAnalysis(a, realNews){
-  const news = [];
-  
-  // أخبار عامة عن السوق
-  news.push(...realNews.slice(0, 3));
-  
-  // أخبار خاصة بالسهم
-  if(a.chg > 3) news.push({title: `${a.tk}: صعود قوي ${pct(a.chg)} — أداء إيجابي`, source: 'Market Data'});
-  if(a.chg < -3) news.push({title: `${a.tk}: هبوط حاد ${pct(a.chg)} — أداء سلبي`, source: 'Market Data'});
-  if(a.rsi != null && a.rsi <= 30) news.push({title: `${a.tk}: تشبع بيعي — فرصة ارتداد محتملة`, source: 'Technical Analysis'});
-  if(a.rsi != null && a.rsi >= 70) news.push({title: `${a.tk}: تشبع شرائي — احتمال تصحيح`, source: 'Technical Analysis'});
-  if(a.vol > a.vAvg * 2) news.push({title: `${a.tk}: حجم تداول مرتفع — اهتمام مستثمرين`, source: 'Market Data'});
-  if(a.px > a.hi52 * 0.95) news.push({title: `${a.tk}: قرب أعلى 52 أسبوعاً — زخم قوي`, source: 'Market Data'});
-  if(a.px < a.lo52 * 1.05) news.push({title: `${a.tk}: قرب أدنى 52 أسبوعاً — فرصة قيمة`, source: 'Market Data'});
-  
-  return news.slice(0, 6);
-}
-
-/* ---------- نظام التقييم الشامل للاستثمار ---------- */
-function goldenScore(a, indicators){
-  let score = 0;
-  const reasons = [];
-  
-  // 1. الاتجاه طويل الأمد (25 نقطة)
-  if(a.s50 > a.s200) { score += 15; reasons.push('المتوسط 50 فوق 200 — اتجاه صاعد طويل الأمد'); }
-  if(a.px > a.s20) { score += 5; reasons.push('السعر فوق متوسط 20 — زخم قصير إيجابي'); }
-  if(a.px > a.s50) { score += 5; reasons.push('السعر فوق متوسط 50 — اتجاه متوسط إيجابي'); }
-  
-  // 2. الزخم (20 نقطة)
-  if(a.rsi != null && a.rsi >= 50 && a.rsi <= 70) { score += 10; reasons.push(`RSI ${a.rsi.toFixed(0)} — زخم صحي غير مشبع`); }
-  if(indicators.macd.hist > 0) { score += 10; reasons.push('MACD إيجابي — زخم صاعد'); }
-  
-  // 3. القيمة والاستقرار (20 نقطة)
-  if(a.vola != null && a.vola < 30) { score += 10; reasons.push(`تقلب ${a.vola.toFixed(1)}% — استقرار جيد للاستثمار`); }
-  if(a.atr != null && a.atr < a.px * 0.03) { score += 10; reasons.push('تقلب يومي معقول — مناسب للاستثمار طويل الأمد'); }
-  
-  // 4. مستويات الدعم والمقاومة (15 نقطة)
-  if(a.pS1 != null && a.px > a.pS1) { score += 8; reasons.push('السعر فوق دعم البيفوت — مستوى دخول جيد'); }
-  if(a.pR1 != null && a.px < a.pR1) { score += 7; reasons.push('السعر تحت مقاومة البيفوت — مسار صاعد'); }
-  
-  // 5. مؤشرات إضافية (10 نقطة)
-  if(indicators.bb.pctB != null && indicators.bb.pctB > 0.3 && indicators.bb.pctB < 0.7) { score += 5; reasons.push('Bollinger — في المنطقة الوسطى — فرصة دخول'); }
-  if(indicators.adx.adx != null && indicators.adx.adx > 20) { score += 5; reasons.push(`ADX ${indicators.adx.adx.toFixed(0)} — اتجاه قوي`); }
-  
-  // 6. التقييم الفني (10 نقطة)
-  if(a.rec != null && a.rec > 0.3) { score += 10; reasons.push(`تقييم فني إيجابي ${a.rec.toFixed(2)}`); }
-  else if(a.rec != null && a.rec > 0) { score += 5; reasons.push(`تقييم فني محايد ${a.rec.toFixed(2)}`); }
-  
-  return {score: Math.min(score, 100), reasons};
-}
-
-/* ---------- الشارت التفاعلي مع التحليل ---------- */
-function drawChart(a, indicators){
-  const c = a.closes.slice(-60);
-  const h = a.highs ? a.highs.slice(-60) : c;
-  const l = a.lows ? a.lows.slice(-60) : c;
-  const v = a.vols ? a.vols.slice(-60) : [];
-  const dts = a.dates.slice(-60);
-  
-  if(c.length < 2) return '<p class="note">لا توجد بيانات كافية للرسم</p>';
-  
-  const W = 800, H = 300, L = 50, R = 10, T = 20, B = 40;
-  const all = c.concat([indicators.bb.upper, indicators.bb.lower].filter(x=>x!=null));
-  const mn = Math.min(...all), mx = Math.max(...all), rg = (mx-mn)||1;
-  const x = i => L + i*(W-L-R)/(c.length-1);
-  const y = v => T + (1-(v-mn)/rg)*(H-T-B);
-  
-  // خطوط الشارت
-  let grid = '';
-  for(let i=0; i<=4; i++){
-    const v = mn + rg*i/4, yy = y(v);
-    grid += `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W-R}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
-    grid += `<text x="${L-6}" y="${(yy+3.5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--dim)">${fmt(v,1)}</text>`;
-  }
-  
-  // خطوط التاريخ
-  const ticks = [0, Math.floor(c.length/2), c.length-1];
-  ticks.forEach(i => {
-    grid += `<text x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--dim)">${dts[i] ? dts[i].slice(5) : ''}</text>`;
-  });
-  
-  // Bollinger Bands
-  let bbPaths = '';
-  if(indicators.bb.upper != null){
-    const upper = [], lower = [], middle = [];
-    for(let i=0; i<c.length; i++){
-      const slice = c.slice(Math.max(0,i-19), i+1);
-      if(slice.length < 20) continue;
-      const mid = slice.reduce((s,v)=>s+v,0)/20;
-      const sd = Math.sqrt(slice.reduce((s,v)=>s+(v-mid)**2,0)/20);
-      upper.push({i, v: mid+2*sd});
-      lower.push({i, v: mid-2*sd});
-      middle.push({i, v: mid});
-    }
-    const toPath = arr => arr.map((p,idx) => (idx?'L':'M')+x(p.i).toFixed(1)+' '+y(p.v).toFixed(1)).join(' ');
-    bbPaths = `<path d="${toPath(upper)}" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,2" opacity="0.6"/>`;
-    bbPaths += `<path d="${toPath(lower)}" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,2" opacity="0.6"/>`;
-    bbPaths += `<path d="${toPath(middle)}" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>`;
-  }
-  
-  // خط السعر
-  const pricePath = c.map((v,i) => (i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
-  
-  // نقطة السعر الحالي
-  const lastX = x(c.length-1), lastY = y(c[c.length-1]);
-  
-  // حجم التداول
-  let volBars = '';
-  if(v.length > 0){
-    const vMax = Math.max(...v);
-    const vH = 40;
-    v.forEach((vol, i) => {
-      if(vol > 0){
-        const bh = (vol/vMax)*vH;
-        const col = c[i] >= c[Math.max(0,i-1)] ? 'var(--up)' : 'var(--down)';
-        volBars += `<rect x="${(x(i)-2).toFixed(1)}" y="${(H-B-bh).toFixed(1)}" width="4" height="${bh.toFixed(1)}" fill="${col}" opacity="0.5"/>`;
-      }
-    });
-  }
-  
-  // خطوط الدعم والمقاومة ونقاط الدخول والوقف والأهداف
-  let analysisLines = '';
-  const atr = indicators.atr || a.px * 0.02;
-  const entry = a.px;
-  const stop = entry - atr * 2;
-  const t1 = entry + atr * 3;
-  const t2 = entry + atr * 5;
-  
-  // خط الدخول
-  analysisLines += `<line x1="${L}" y1="${y(entry).toFixed(1)}" x2="${W-R}" y2="${y(entry).toFixed(1)}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6,3"/>`;
-  analysisLines += `<text x="${W-R}" y="${(y(entry)-5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--accent)">دخول ${fmn(entry)}</text>`;
-  
-  // خط الوقف
-  analysisLines += `<line x1="${L}" y1="${y(stop).toFixed(1)}" x2="${W-R}" y2="${y(stop).toFixed(1)}" stroke="var(--down)" stroke-width="2" stroke-dasharray="6,3"/>`;
-  analysisLines += `<text x="${W-R}" y="${(y(stop)-5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--down)">وقف ${fmn(stop)}</text>`;
-  
-  // خط الهدف الأول
-  analysisLines += `<line x1="${L}" y1="${y(t1).toFixed(1)}" x2="${W-R}" y2="${y(t1).toFixed(1)}" stroke="var(--up)" stroke-width="2" stroke-dasharray="6,3"/>`;
-  analysisLines += `<text x="${W-R}" y="${(y(t1)-5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--up)">هدف 1 ${fmn(t1)}</text>`;
-  
-  // خط الهدف الثاني
-  analysisLines += `<line x1="${L}" y1="${y(t2).toFixed(1)}" x2="${W-R}" y2="${y(t2).toFixed(1)}" stroke="var(--up)" stroke-width="2" stroke-dasharray="2,2"/>`;
-  analysisLines += `<text x="${W-R}" y="${(y(t2)-5).toFixed(1)}" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--up)">هدف 2 ${fmn(t2)}</text>`;
-  
-  // مناطق الدعم والمقاومة
-  if(a.pS1 != null){
-    analysisLines += `<line x1="${L}" y1="${y(a.pS1).toFixed(1)}" x2="${W-R}" y2="${y(a.pS1).toFixed(1)}" stroke="var(--down)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
-    analysisLines += `<text x="${L+5}" y="${(y(a.pS1)+12).toFixed(1)}" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--down)">دعم ${fmn(a.pS1)}</text>`;
-  }
-  if(a.pR1 != null){
-    analysisLines += `<line x1="${L}" y1="${y(a.pR1).toFixed(1)}" x2="${W-R}" y2="${y(a.pR1).toFixed(1)}" stroke="var(--up)" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
-    analysisLines += `<text x="${L+5}" y="${(y(a.pR1)-5).toFixed(1)}" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--up)">مقاومة ${fmn(a.pR1)}</text>`;
-  }
-  
-  return `<svg class="g-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="شارت السعر مع التحليل">
-    ${grid}
-    ${bbPaths}
-    <path d="${pricePath}" fill="none" stroke="var(--fg)" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="var(--fg)"/>
-    ${volBars}
-    ${analysisLines}
-  </svg>
-  <div class="g-legend">
-    <span><i style="background:var(--fg)"></i>السعر</span>
-    <span><i style="background:var(--accent)"></i>Bollinger Bands</span>
-    <span><i style="background:var(--up)"></i>حجم صاعد</span>
-    <span><i style="background:var(--down)"></i>حجم هابط</span>
-    <span><i style="background:var(--accent)"></i>دخول</span>
-    <span><i style="background:var(--down)"></i>وقف</span>
-    <span><i style="background:var(--up)"></i>أهداف</span>
-  </div>`;
-}
-
-/* ---------- عرض البطاقة ---------- */
-function cardHTML(a, rank, indicators, fund, news, scoreData){
-  const k = cls(a.chg);
-  const score = scoreData.score;
-  const scoreColor = score >= 70 ? 'var(--up)' : score >= 50 ? 'var(--gold)' : 'var(--down)';
-  
-  return `<div class="g-card">
-    <div class="rank">${rank}</div>
-    <div class="g-header">
-      <div>
-        <div class="g-tk">${a.tk}.CA</div>
-        <div class="g-name">${NAMES[a.tk] || a.name || ''}</div>
-      </div>
-      <span class="spacer" style="flex:1"></span>
-      <div style="text-align:end">
-        <div class="g-px ${k}">${fmn(a.px)}</div>
-        <div class="g-chg ${k}">${pct(a.chg)}</div>
-      </div>
-    </div>
-    
-    <div class="g-score">
-      <span>التقييم الذهبي</span>
-      <div class="bar"><div class="fill" style="width:${score}%;background:${scoreColor}"></div></div>
-      <span class="val">${score}/100</span>
-    </div>
-    
-    <div class="g-indicators">
-      <div class="g-ind"><div class="label">RSI</div><div class="value ${a.rsi>=70?'down':a.rsi<=30?'up':'neutral'}">${a.rsi?.toFixed(0)||'—'}</div></div>
-      <div class="g-ind"><div class="label">MACD</div><div class="value ${indicators.macd.hist>0?'up':'down'}">${indicators.macd.hist>0?'+':''}${indicators.macd.hist?.toFixed(2)||'—'}</div></div>
-      <div class="g-ind"><div class="label">Stochastic</div><div class="value ${indicators.stoch.k>80?'down':indicators.stoch.k<20?'up':'neutral'}">${indicators.stoch.k?.toFixed(0)||'—'}</div></div>
-      <div class="g-ind"><div class="label">ADX</div><div class="value ${indicators.adx.adx>25?'up':'neutral'}">${indicators.adx.adx?.toFixed(0)||'—'}</div></div>
-      <div class="g-ind"><div class="label">Bollinger %B</div><div class="value ${indicators.bb.pctB>0.8?'down':indicators.bb.pctB<0.2?'up':'neutral'}">${indicators.bb.pctB?.toFixed(2)||'—'}</div></div>
-      <div class="g-ind"><div class="label">ATR</div><div class="value neutral">${indicators.atr?.toFixed(2)||'—'}</div></div>
-      <div class="g-ind"><div class="label">حجم/متوسط</div><div class="value ${a.vol>a.vAvg*1.5?'up':'neutral'}">${a.vAvg?(a.vol/a.vAvg).toFixed(1)+'x':'—'}</div></div>
-      <div class="g-ind"><div class="label">تقلب</div><div class="value neutral">${a.vola?.toFixed(1)||'—'}%</div></div>
-    </div>
-    
-    ${drawChart(a, indicators)}
-    
-    <div class="g-analysis">
-      <h3>📊 التحليل الفني</h3>
-      <ul>
-        ${scoreData.reasons.map(r => `<li>${r}</li>`).join('')}
-      </ul>
-      
-      <h3>💰 التحليل الأساسي</h3>
-      <div>
-        <span class="g-tag ${fund.pe<15?'positive':fund.pe>25?'negative':'neutral'}">P/E ${fund.pe?.toFixed(1)||'—'}</span>
-        <span class="g-tag ${fund.pb<2?'positive':fund.pb>4?'negative':'neutral'}">P/B ${fund.pb?.toFixed(1)||'—'}</span>
-        <span class="g-tag ${fund.roe>15?'positive':fund.roe<5?'negative':'neutral'}">ROE ${fund.roe?.toFixed(0)||'—'}%</span>
-        <span class="g-tag ${fund.debtRatio<40?'positive':fund.debtRatio>60?'negative':'neutral'}">ديون ${fund.debtRatio?.toFixed(0)||'—'}%</span>
-        <span class="g-tag ${fund.revenueGrowth>0?'positive':'negative'}">نمو ${fund.revenueGrowth?.toFixed(1)||'—'}%</span>
-      </div>
-      
-      <h3>📰 الأخبار والاتجاه</h3>
-      <div class="g-news">
-        ${news.map(n => `<div class="news-item"><div class="news-title">${n.title}</div><div class="news-source">${n.source}</div></div>`).join('')}
-      </div>
-      
-      <h3>🎯 خطة الاستثمار</h3>
-      <div class="g-plan">
-        <div class="cell entry"><span>الدخول</span><b>${fmn(a.px)}</b></div>
-        <div class="cell stop"><span>وقف الخسارة</span><b>${fmn(a.px - (indicators.atr||a.px*0.02)*2)}</b></div>
-        <div class="cell target"><span>الهدف الأول (3 شهور)</span><b>${fmn(a.px + (indicators.atr||a.px*0.02)*3)}</b></div>
-        <div class="cell target"><span>الهدف الثاني (6 شهور)</span><b>${fmn(a.px + (indicators.atr||a.px*0.02)*5)}</b></div>
-        <div class="cell"><span>العائد المتوقع</span><b>${indicators.atr?((indicators.atr*3)/(indicators.atr*2)*100).toFixed(0)+'%':'50%'}</b></div>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ---------- التحميل والعرض ---------- */
-let DATA = [];
 
 async function load(){
-  $('list').innerHTML = '<div class="skel"></div>'.repeat(3);
-  $('foot').textContent = '';
-  
-  try {
-    // جلب الأخبار الحقيقية أولاً
-    const realNews = await fetchRealNews();
-    
-    const rows = await fetchMarket();
-    const bySym = {};
-    rows.forEach(d => { bySym[d.s.replace('EGX:','')] = d; });
-    
-    DATA = DEFAULT.filter(t => bySym[t]).map(t => {
-      const a = tvItem(t, bySym[t]);
-      return a;
-    });
-    
-    // حساب المؤشرات لكل سهم
-    const analyzed = [];
-    for(const a of DATA){
-      const c = [a.px];
-      const indicators = {
-        macd: {hist: a.rec || 0},
-        bb: {pctB: a.px > a.s50 ? 0.7 : 0.3},
-        stoch: {k: a.rsi || 50},
-        adx: {adx: a.vola ? a.vola * 2 : 20},
-        obv: {trend: a.chg > 0 ? 'صاعد' : 'هابط'},
-        atr: a.atr
-      };
-      const fund = fundamentalAnalysis(a);
-      const news = newsAnalysis(a, realNews);
-      const scoreData = goldenScore(a, indicators);
-      analyzed.push({...a, indicators, fund, news, scoreData});
-    }
-    
-    // ترتيب حسب التقييم وأخذ أول 5
-    analyzed.sort((a,b) => b.scoreData.score - a.scoreData.score);
-    const top5 = analyzed.slice(0, 5);
-    
-    // عرض النتائج
-    $('list').innerHTML = top5.map((a, i) => cardHTML(a, i+1, a.indicators, a.fund, a.news, a.scoreData)).join('');
-    
-    const t = new Date(Date.now()+3*3600000).toISOString().slice(11,16);
-    $('stamp').textContent = `آخر تحديث ${t} بتوقيت القاهرة`;
-    $('foot').textContent = 'تحليل آلي مبني على مؤشرات فنية وأساسية مع أخبار حقيقية — ليس نصيحة استثمارية. الاستثمار طويل الأمد يتطلب صبر وإدارة مخاطر.';
-    
-  } catch(e) {
-    $('list').innerHTML = '';
-    $('foot').textContent = 'تعذر تحميل البيانات — راجع الاتصال بالإنترنت ثم اضغط تحديث.';
+  document.getElementById("list").innerHTML='<div class="skel"></div>'.repeat(3);
+  document.getElementById("foot").textContent="";
+  try{
+    const rows=await fetchMarket();
+    const bySym={};
+    rows.forEach(d=>{bySym[d.s.replace("EGX:","")]=d});
+    const data=BLUE_CHIPS.filter(t=>bySym[t]).map(t=>tvItem(t,bySym[t]));
+    const analyzed=data.map(a=>{const scoreData=goldenScore(a);return{a,scoreData}});
+    analyzed.sort((a,b)=>b.scoreData.score-a.scoreData.score);
+    const top5=analyzed.slice(0,5);
+    document.getElementById("list").innerHTML=top5.map((item,i)=>cardHTML(item.a,i+1,item.scoreData)).join("");
+    const t=new Date(Date.now()+3*3600000).toISOString().slice(11,16);
+    document.getElementById("stamp").textContent="آخر تحديث "+t+" بتوقيت القاهرة";
+    document.getElementById("foot").textContent="تحليل آلي مبني على مؤشرات فنية وأساسية — ليس نصيحة استثمارية. الاستثمار طويل الأمد يتطلب صبر وإدارة مخاطر.";
+  }catch(e){
+    document.getElementById("list").innerHTML="";
+    document.getElementById("foot").textContent="تعذر تحميل البيانات — راجع الاتصال بالإنترنت ثم اضغط تحديث.";
   }
 }
-
-$('reload').addEventListener('click', load);
+document.getElementById("reload").addEventListener("click",load);
 load();
 </script>
 </body>
