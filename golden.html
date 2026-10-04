@@ -171,7 +171,7 @@ async function load(){
     const rows=await fetchMarket();
     const bySym={};
     rows.forEach(d=>{bySym[d.s.replace("EGX:","")]=d});
-    const data=BLUE_CHIPS.filter(t=>bySym[t]).map(t=>tvItem(t,bySym[t]));
+    const data=BLUE_CHIPS.filter(t=>bySym[t]).map(t=>tvItem(t,bySym[t].d));
     const analyzed=data.map(a=>{const scoreData=goldenScore(a);return{a,scoreData}});
     analyzed.sort((a,b)=>b.scoreData.score-a.scoreData.score);
     const top5=analyzed.slice(0,5);
