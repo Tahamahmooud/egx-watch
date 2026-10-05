@@ -39,7 +39,7 @@ button:hover{border-color:var(--accent)}
 .g-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
 .g-tk{font-family:var(--f-num);font-size:13px;font-weight:600;color:var(--accent)}
 .g-name{font-weight:600;font-size:15px}
-.g-px{font-family:var(--f-num);font-size:22px;font-weight:600;white-space:nowrap;min-width:60px;text-align:end}
+.g-px{font-family:var(--f-num);font-size:22px;font-weight:600;white-space:nowrap;min-width:70px;text-align:end;flex-shrink:0}
 .g-chg{font-family:var(--f-num);font-size:13px}
 .g-chg.up{color:var(--up)}.g-chg.down{color:var(--down)}
 .g-score{display:flex;align-items:center;gap:8px;margin:8px 0}
@@ -142,7 +142,7 @@ function cardHTML(a,rank,scoreData){
   const rr=((t1-a.px)/(a.px-stop)).toFixed(1);
   return '<div class="g-card">'
     +'<div class="rank">'+rank+'</div>'
-    +'<div class="g-header"><div><div class="g-tk">'+a.tk+'.CA</div><div class="g-name">'+(NAMES[a.tk]||a.name||'')+'</div></div><span class="spacer" style="flex:1"></span><div style="text-align:end"><div class="g-px '+k+'">'+fmn(a.px)+'</div><div class="g-chg '+k+'">'+pct(a.chg)+'</div></div></div>'
+    +'<div class="g-header"><div><div class="g-tk">'+a.tk+'.CA</div><div class="g-name">'+(NAMES[a.tk]||a.name||'')+'</div></div><span class="spacer" style="flex:1"></span><div style="text-align:end;flex-shrink:0;min-width:80px"><div class="g-px '+k+'">'+fmn(a.px)+'</div><div class="g-chg '+k+'">'+pct(a.chg)+'</div></div></div>'
     +'<div class="g-score"><span>التقييم الذهبي</span><div class="bar"><div class="fill" style="width:'+score+'%;background:'+scoreColor+'"></div></div><span class="val">'+score+'/100</span></div>'
     +'<div class="g-indicators">'
     +'<div class="g-ind"><div class="label">RSI</div><div class="value '+(a.rsi>=70?"down":a.rsi<=30?"up":"neutral")+'">'+(a.rsi?a.rsi.toFixed(0):"—")+'</div></div>'
