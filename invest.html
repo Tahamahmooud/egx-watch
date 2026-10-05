@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="استثمار">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="تحليل استثماري طويل الأمد للبورصة المصرية">
+<meta name="description" content="تحليل استثماري طويل الأمد للبورصة المصرية — أخبار حية، أسعار لحظية، متابعة تلقائية">
 <title>استثمار طويل الأمد — البورصة المصرية</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -72,18 +72,19 @@ td:first-child{font-family:var(--f-ui);font-weight:600}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--flat)}
 .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dim);text-decoration:none;margin-bottom:12px}
 .back:hover{color:var(--accent)}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--up);margin-left:4px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
 <div dir="rtl">
 <div class="wrap">
 <header>
-<div class="hrow"><h1>استثمار طويل الأمد</h1><span class="spacer"></span><button id="reload" type="button">تحديث</button></div>
-<div class="sub" id="stamp"></div>
+<div class="hrow"><h1>استثمار طويل الأمد</h1><span class="sub" id="stamp"></span><span class="spacer"></span><button id="reload" type="button">تحديث</button></div>
 </header>
 <a href="index.html" class="back">→ العودة للمؤشر</a>
-<div class="section"><h2><span class="num">١</span>ملخص السوق</h2><div class="grid3" id="marketStats"></div></div>
-<div class="section"><h2><span class="num">٢</span>أخبار السوق</h2><div class="card" id="newsContainer"></div></div>
+<div class="section"><h2><span class="num">١</span>ملخص السوق <span class="live-dot"></span></h2><div class="grid3" id="marketStats"></div></div>
+<div class="section"><h2><span class="num">٢</span>أخبار السوق <span class="live-dot"></span></h2><div class="card" id="newsContainer"></div></div>
 <div class="section"><h2><span class="num">٣</span>تحليل المؤشرات</h2><div class="card" id="indicesAnalysis"></div></div>
 <div class="section"><h2><span class="num">٤</span>تحليل القطاعات</h2><div class="card" id="sectorsAnalysis"></div></div>
 <div class="section"><h2><span class="num">٥</span>نقاط الدخول للاستثمار طويل الأمد</h2><div class="card" id="entryPoints"></div></div>
@@ -93,39 +94,39 @@ td:first-child{font-family:var(--f-ui);font-weight:600}
 </div>
 </div>
 <script>
-const TV_SCAN = "https://scanner.tradingview.com/egypt/scan";
-const TV_COLS = ["close","change","RSI","SMA20","SMA50","SMA200","volume","average_volume_10d_calc","price_52_week_high","price_52_week_low","description","type","ATR","Volatility.D","Recommend.All","Pivot.M.Classic.S1","Pivot.M.Classic.S2","Pivot.M.Classic.S3","Pivot.M.Classic.R1","Pivot.M.Classic.R2","Pivot.M.Classic.R3","Pivot.M.Classic.Middle","High.1M","Low.1M","High.3M","Low.3M"];
-const BLUE_CHIPS = ["COMI","SWDY","ETEL","TMGH","EGAL","MFPC","QNBE","HDBK","ABUK","ALCN","ORAS","EAST","EFIH","ADIB","EMFD","FWRY","SCTS","CANA","ORHD","GPPL","VLMR","VLMRA","EFID","PHDC","JUFO","HRHO","OCDI","GBCO","FAIT","FAITA"];
-const NAMES = {"COMI":"التجاري الدولي","SWDY":"السويدي إليكتريك","ETEL":"المصرية للاتصالات","TMGH":"طلعت مصطفى","EGAL":"مصر للألومنيوم","MFPC":"موبكو","QNBE":"بنك قطر الوطني","HDBK":"بنك التعمير والإسكان","ABUK":"أبو قير للأسمدة","ALCN":"الإسكندرية لتداول الحاويات","ORAS":"أوراسكوم كونستراكشون","EAST":"الشرقية للدخان","EFIH":"إي فاينانس","ADIB":"مصرف أبو ظبي الإسلامي","EMFD":"إعمار مصر","FWRY":"فوري","SCTS":"قناة السويس لتوطين التكنولوجيا","CANA":"بنك قناة السويس","ORHD":"أوراسكوم للتنمية مصر","GPPL":"جولدن بيراميدز بلازا","VLMR":"فالمور القابضة بالدولار","VLMRA":"فالمور القابضة بالجنيه","EFID":"إيديتا","PHDC":"بالم هيلز","JUFO":"جهينة","HRHO":"إي إف جي القابضة - هيرميس","OCDI":"سوديك","GBCO":"جي بي كورب","FAIT":"بنك فيصل الإسلامي بالجنيه","FAITA":"بنك فيصل الإسلامي بالدولار"};
-const fmt = (n,d=2) => n==null||!isFinite(n) ? "—" : Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
-const pct = n => n==null||!isFinite(n) ? "—" : (n>=0?"+":"")+n.toFixed(2)+"%";
-const cls = n => n==null?"flat":n>0.0001?"up":n<-0.0001?"down":"flat";
+const TV_SCAN="https://scanner.tradingview.com/egypt/scan";
+const TV_COLS=["close","change","RSI","SMA20","SMA50","SMA200","volume","average_volume_10d_calc","price_52_week_high","price_52_week_low","description","type","ATR","Volatility.D","Recommend.All","Pivot.M.Classic.S1","Pivot.M.Classic.S2","Pivot.M.Classic.S3","Pivot.M.Classic.R1","Pivot.M.Classic.R2","Pivot.M.Classic.R3","Pivot.M.Classic.Middle","High.1M","Low.1M","High.3M","Low.3M"];
+const BLUE_CHIPS=["COMI","SWDY","ETEL","TMGH","EGAL","MFPC","QNBE","HDBK","ABUK","ALCN","ORAS","EAST","EFIH","ADIB","EMFD","FWRY","SCTS","CANA","ORHD","GPPL","VLMR","VLMRA","EFID","PHDC","JUFO","HRHO","OCDI","GBCO","FAIT","FAITA"];
+const NAMES={"COMI":"التجاري الدولي","SWDY":"السويدي إليكتريك","ETEL":"المصرية للاتصالات","TMGH":"طلعت مصطفى","EGAL":"مصر للألومنيوم","MFPC":"موبكو","QNBE":"بنك قطر الوطني","HDBK":"بنك التعمير والإسكان","ABUK":"أبو قير للأسمدة","ALCN":"الإسكندرية لتداول الحاويات","ORAS":"أوراسكوم كونستراكشون","EAST":"الشرقية للدخان","EFIH":"إي فاينانس","ADIB":"مصرف أبو ظبي الإسلامي","EMFD":"إعمار مصر","FWRY":"فوري","SCTS":"قناة السويس لتوطين التكنولوجيا","CANA":"بنك قناة السويس","ORHD":"أوراسكوم للتنمية مصر","GPPL":"جولدن بيراميدز بلازا","VLMR":"فالمور القابضة بالدولار","VLMRA":"فالمور القابضة بالجنيه","EFID":"إيديتا","PHDC":"بالم هيلز","JUFO":"جهينة","HRHO":"إي إف جي القابضة - هيرميس","OCDI":"سوديك","GBCO":"جي بي كورب","FAIT":"بنك فيصل الإسلامي بالجنيه","FAITA":"بنك فيصل الإسلامي بالدولار"};
+const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=n=>n==null||!isFinite(n)?"—":(n>=0?"+":"")+n.toFixed(2)+"%";
+const cls=n=>n==null?"flat":n>0.0001?"up":n<-0.0001?"down":"flat";
 
 async function fetchMarket(){
-  const body = JSON.stringify({symbols:{tickers:BLUE_CHIPS.map(t=>"EGX:"+t),query:{types:[]}},columns:TV_COLS});
-  const r = await fetch(TV_SCAN,{method:"POST",headers:{"Content-Type":"text/plain"},body});
-  if(!r.ok) throw new Error("scan "+r.status);
-  const j = await r.json();
-  if(!j||!j.data) throw new Error("scan empty");
+  const body=JSON.stringify({symbols:{tickers:BLUE_CHIPS.map(t=>"EGX:"+t),query:{types:[]}},columns:TV_COLS});
+  const r=await fetch(TV_SCAN,{method:"POST",headers:{"Content-Type":"text/plain"},body});
+  if(!r.ok)throw new Error("scan "+r.status);
+  const j=await r.json();
+  if(!j||!j.data)throw new Error("scan empty");
   return j.data;
 }
 
 function tvItem(tk,d){
   const v={};
   TV_COLS.forEach((c,i)=>{v[c]=d[i]});
-  return {tk,px:v.close,chg:v.change,s20:v.SMA20,s50:v.SMA50,s200:v.SMA200,rsi:v.RSI,vol:v.volume,vAvg:v.average_volume_10d_calc,hi52:v.price_52_week_high,lo52:v.price_52_week_low,atr:v.ATR,vola:v["Volatility.D"],rec:v["Recommend.All"],pS1:v["Pivot.M.Classic.S1"],pS2:v["Pivot.M.Classic.S2"],pS3:v["Pivot.M.Classic.S3"],pR1:v["Pivot.M.Classic.R1"],pR2:v["Pivot.M.Classic.R2"],pR3:v["Pivot.M.Classic.R3"],pM:v["Pivot.M.Classic.Middle"],hi1m:v["High.1M"],lo1m:v["Low.1M"],hi3m:v["High.3M"],lo3m:v["Low.3M"],en:v.description,src:"مباشر (TradingView)"};
+  return{tk,px:v.close,chg:v.change,s20:v.SMA20,s50:v.SMA50,s200:v.SMA200,rsi:v.RSI,vol:v.volume,vAvg:v.average_volume_10d_calc,hi52:v.price_52_week_high,lo52:v.price_52_week_low,atr:v.ATR,vola:v["Volatility.D"],rec:v["Recommend.All"],pS1:v["Pivot.M.Classic.S1"],pS2:v["Pivot.M.Classic.S2"],pS3:v["Pivot.M.Classic.S3"],pR1:v["Pivot.M.Classic.R1"],pR2:v["Pivot.M.Classic.R2"],pR3:v["Pivot.M.Classic.R3"],pM:v["Pivot.M.Classic.Middle"],hi1m:v["High.1M"],lo1m:v["Low.1M"],hi3m:v["High.3M"],lo3m:v["Low.3M"],en:v.description,src:"مباشر (TradingView)"};
 }
 
 function trendOf(a){
-  const {px,s20,s50,s200}=a;
-  if(s20==null||s50==null) return {t:"غير محدد",w:0};
+  const{px,s20,s50,s200}=a;
+  if(s20==null||s50==null)return{t:"غير محدد",w:0};
   let w=0;
-  if(s200!=null) w+=s50>s200?1:-1;
+  if(s200!=null)w+=s50>s200?1:-1;
   w+=px>s20?1:-1;
   w+=px>s50?1:-1;
-  if(w>=2) return {t:"صاعد",w};
-  if(w<=-2) return {t:"هابط",w};
-  return {t:"عرضي",w};
+  if(w>=2)return{t:"صاعد",w};
+  if(w<=-2)return{t:"هابط",w};
+  return{t:"عرضي",w};
 }
 
 function levels(a){
@@ -152,25 +153,25 @@ function levels(a){
   below.sort((x,y)=>y.v-x.v);
   above.forEach(o=>o.role="مقاومة");
   below.forEach(o=>o.role="دعم");
-  return {sup:below[0]||null,res:above[0]||null,sup2:below[1]||null,res2:above[1]||null,above};
+  return{sup:below[0]||null,res:above[0]||null,sup2:below[1]||null,res2:above[1]||null,above};
 }
 
 function analyse(a){
   const L=levels(a);
-  const {t:trend}=trendOf(a);
+  const{t:trend}=trendOf(a);
   const atr=a.atr;
   const rec=a.rec;
   const px=a.px;
   const flat=(atr==null||atr<px*0.0005)&&!L.sup&&!L.res;
-  if(flat) return {kind:"ساكن — بلا حركة",trend:"غير محدد",entry:null,entryZone:null,stop:null,t1:null,t2:null,rr:null,risk:null,sup:null,res:null,sup2:null,res2:null,atr,why:["السهم مش بيتحرك ومفيش مستويات كافية"]};
+  if(flat)return{kind:"ساكن — بلا حركة",trend:"غير محدد",entry:null,entryZone:null,stop:null,t1:null,t2:null,rr:null,risk:null,sup:null,res:null,sup2:null,res2:null,atr,why:["السهم مش بيتحرك ومفيش مستويات كافية"]};
   const atrUnit=atr!=null?atr*2:px*0.05;
   const entry=px;
   const entryZone=L.sup&&L.sup.v<px?[L.sup.v*1.002,px]:[px*0.995,px*1.005];
   let stopRaw=L.sup?L.sup.v*0.985:px-atr*2;
   const minRisk=atr!=null?atr*0.8:px*0.02;
   const maxRisk=px*0.15;
-  if(entry-stopRaw<minRisk) stopRaw=entry-minRisk;
-  if(entry-stopRaw>maxRisk) stopRaw=entry-maxRisk;
+  if(entry-stopRaw<minRisk)stopRaw=entry-minRisk;
+  if(entry-stopRaw>maxRisk)stopRaw=entry-maxRisk;
   const stop=stopRaw;
   const minStep=atr!=null?atr*0.5:px*0.02;
   const far=L.above.filter(o=>o.v>entry+minStep);
@@ -181,54 +182,91 @@ function analyse(a){
   const risk=entry-stop;
   const rr=risk>0&&t1>entry?(t1-entry)/risk:null;
   let score=0;
-  if(trend==="صاعد") score+=2;
-  else if(trend==="هابط") score-=2;
+  if(trend==="صاعد")score+=2;
+  else if(trend==="هابط")score-=2;
   if(a.rsi!=null){if(a.rsi<=35)score+=1;else if(a.rsi>=70)score-=1}
   if(rec!=null){if(rec>=0.3)score+=2;else if(rec<=-0.3)score-=2}
-  if(a.vAvg&&a.vol) score+=a.vol>a.vAvg*1.3?1:0;
-  if(L.sup&&(px-L.sup.v)/px<0.02) score+=1;
-  if(rr!=null&&rr>=2) score+=1;
-  if(rr!=null&&rr<1) score-=1;
+  if(a.vAvg&&a.vol)score+=a.vol>a.vAvg*1.3?1:0;
+  if(L.sup&&(px-L.sup.v)/px<0.02)score+=1;
+  if(rr!=null&&rr>=2)score+=1;
+  if(rr!=null&&rr<1)score-=1;
   let kind,why=[];
-  if(score>=4) kind="فرصة قوية";
-  else if(score>=2) kind="فرصة";
-  else if(score<=-3) kind="خطر — اتجاه هابط";
-  else if(a.rsi!=null&&a.rsi>=70) kind="تشبع شرائي";
+  if(score>=4)kind="فرصة قوية";
+  else if(score>=2)kind="فرصة";
+  else if(score<=-3)kind="خطر — اتجاه هابط";
+  else if(a.rsi!=null&&a.rsi>=70)kind="تشبع شرائي";
   else kind="مراقبة";
-  if(kind==="فرصة قوية"&&(rr==null||rr<1.5)) kind="فرصة";
-  if(trend==="صاعد") why.push("الاتجاه العام صاعد");
-  else if(trend==="هابط") why.push("الاتجاه العام هابط");
+  if(kind==="فرصة قوية"&&(rr==null||rr<1.5))kind="فرصة";
+  if(trend==="صاعد")why.push("الاتجاه العام صاعد");
+  else if(trend==="هابط")why.push("الاتجاه العام هابط");
   else why.push("الاتجاه عرضي");
   if(a.rsi!=null){
-    if(a.rsi<=35) why.push("RSI "+a.rsi.toFixed(0)+" — قريب من التشبع البيعي");
-    else if(a.rsi>=70) why.push("RSI "+a.rsi.toFixed(0)+" — تشبع شرائي");
+    if(a.rsi<=35)why.push("RSI "+a.rsi.toFixed(0)+" — قريب من التشبع البيعي");
+    else if(a.rsi>=70)why.push("RSI "+a.rsi.toFixed(0)+" — تشبع شرائي");
     else why.push("RSI "+a.rsi.toFixed(0)+" — زخم متوسط");
   }
-  if(rec!=null) why.push("التقييم الفني "+(rec>0?"+":"")+rec.toFixed(2));
-  if(a.atr!=null) why.push("ATR "+a.atr.toFixed(2)+" — الوقف على بعد "+(risk/px*100).toFixed(1)+"%");
-  if(L.sup) why.push("الدعم: "+L.sup.label+" عند "+fmt(L.sup.v));
-  if(t1src) why.push("الهدف الأول: "+t1src+" "+fmt(t1));
+  if(rec!=null)why.push("التقييم الفني "+(rec>0?"+":"")+rec.toFixed(2));
+  if(a.atr!=null)why.push("ATR "+a.atr.toFixed(2)+" — الوقف على بعد "+(risk/px*100).toFixed(1)+"%");
+  if(L.sup)why.push("الدعم: "+L.sup.label+" عند "+fmt(L.sup.v));
+  if(t1src)why.push("الهدف الأول: "+t1src+" "+fmt(t1));
   else why.push("الهدف الأول: "+fmt(t1));
-  if(t2src) why.push("الهدف الثاني: "+t2src+" "+fmt(t2));
-  if(rr!=null) why.push(rr>=2?"عائد/مخاطرة "+rr.toFixed(1)+":1 — ممتاز":rr>=1?"عائد/مخاطرة "+rr.toFixed(1)+":1 — مقبول":"عائد/مخاطرة "+rr.toFixed(1)+":1 — ضعيف");
-  return {kind,why,trend,entry,entryZone,stop,t1,t2,rr,risk,sup:L.sup,res:L.res,sup2:L.sup2,res2:L.res2,atr};
+  if(t2src)why.push("الهدف الثاني: "+t2src+" "+fmt(t2));
+  if(rr!=null)why.push(rr>=2?"عائد/مخاطرة "+rr.toFixed(1)+":1 — ممتاز":rr>=1?"عائد/مخاطرة "+rr.toFixed(1)+":1 — مقبول":"عائد/مخاطرة "+rr.toFixed(1)+":1 — ضعيف");
+  return{kind,why,trend,entry,entryZone,stop,t1,t2,rr,risk,sup:L.sup,res:L.res,sup2:L.sup2,res2:L.res2,atr};
 }
 
-const NEWS = [
-  {title:"البورصة المصرية تتجاوز 4.3 تريليون جنيه رأس مال سوقي",src:"الأهرام",date:"أكتوبر 2026",summary:"رأس المال السوقي تجاوز 4.3 تريليون جنيه بمتوسط تداولات يومية 10 مليارات. البورصة تستعد لطروحات كبرى تشمل بنك القاهرة ومصر لتأمينات الحياة.",impact:"إيجابي",impactLevel:3},
-  {title:"EGX30 يحقق +33.5% منذ بداية 2026",src:"AGBI",date:"أغسطس 2026",summary:"مؤشر EGX30 ارتفع 33.5% منذ بداية العام محققاً أعلى مستوى تاريخي عند 56,931 نقطة في سبتمبر.",impact:"إيجابي",impactLevel:2},
-  {title:"450 ألف مستثمر جديد يدخلون البورصة في 2026",src:"الأهرام",date:"سبتمبر 2026",summary:"عدد المستثمرين الجدد وصل إلى 450 ألف في أول 8 شهور من 2026 مقارنة بـ 300 ألف في نفس الفترة من 2025.",impact:"إيجابي",impactLevel:2},
-  {title:"برنامج الطروحات الحكومية: 20 شركة مدرجة من 30",src:"الأهرام",date:"2026",summary:"برنامج خصخصة الشركات الحكومية أدرج 20 شركة حتى الآن من 30 مستهدفة. الطروحات القادمة تشمل شركات بترول كبرى.",impact:"إيجابي",impactLevel:3},
-  {title:"S&P تبقي مصر في فئة الأسواق الناشئة",src:"S&P DJI",date:"2026",summary:"مؤسسة S&P Dow Jones قررت الإبقاء على تصنيف مصر كسوق ناشئ بعد مراجعة 2026.",impact:"إيجابي",impactLevel:2},
-  {title:"البنك المركزي يبقي أسعار الفائدة دون تغيير",src:"المركزي المصري",date:"2026",summary:"البنك المركزي أبقى أسعار الفائدة دون تغيير للمرة الثالثة منذ بداية 2025 مع معدل تضخم 14.5%.",impact:"محايد",impactLevel:1},
-  {title:"قطاع الرعاية الصحية يتصدر المكاسب +13.79%",src:"Stockastic",date:"2026",summary:"قطاع الرعاية الصحية تصدر المكاسب للأسبوع الثاني على التوالي بنسبة +13.79% بنمو أرباح قوي.",impact:"إيجابي",impactLevel:2},
-  {title:"بنك القاهرة يقترب من طرح تاريخي في البورصة",src:"العين الإخبارية",date:"2026",summary:"بنك القاهرة اقترب من الطرح في البورصة بعد 18 عاماً من الانتظار مع موافقة لجنة حكومية.",impact:"إيجابي",impactLevel:2},
-  {title:"التوترات الجيوسياسية تضغط على البورصة",src:"صدى البلد",date:"سبتمبر 2026",summary:"البورصة خسرت 95.7 مليار جنيه في جلسة واحدة بسبب التوترات الجيوسياسية لكن استعادت توازنها.",impact:"سلبي",impactLevel:2},
-  {title:"الجنيه المصري يهبط 4.6% مقابل الدولار في 12 شهراً",src:"AGBI",date:"2026",summary:"الجنيه هبط 4.6% مقابل الدولار خلال 12 شهراً رغم أنه أصبح أكثر حرية في التعويم.",impact:"محايد",impactLevel:1}
+// أخبار حية من RSS feeds
+const RSS_FEEDS=[
+  {name:"جريدة البورصة",url:"https://www.alborsaanews.com/feed"},
+  {name:"جريدة المال",url:"https://almalnews.com/feed"},
+  {name:"صدى البلد",url:"https://www.elbalad.news/rss.xml"}
 ];
 
+async function fetchRSSFeed(feedUrl){
+  try{
+    const proxyUrl="https://api.allorigins.win/raw?url="+encodeURIComponent(feedUrl);
+    const r=await fetch(proxyUrl,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)return[];
+    const text=await r.text();
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(text,"text/xml");
+    const items=doc.querySelectorAll("item");
+    const news=[];
+    items.forEach((item,i)=>{
+      if(i>=5)return;
+      const title=item.querySelector("title")?.textContent?.trim()||"";
+      const link=item.querySelector("link")?.textContent?.trim()||"";
+      const pubDate=item.querySelector("pubDate")?.textContent?.trim()||"";
+      const desc=item.querySelector("description")?.textContent?.trim()||"";
+      if(title.length>10){
+        news.push({title,link,pubDate,desc:desc.substring(0,200)});
+      }
+    });
+    return news;
+  }catch(e){return[]}
+}
+
+async function fetchLiveNews(){
+  const allNews=[];
+  for(const feed of RSS_FEEDS){
+    const news=await fetchRSSFeed(feed.url);
+    news.forEach(n=>{n.source=feed.name;allNews.push(n)});
+  }
+  // أخبار احتياطية لو مفيش RSS
+  if(allNews.length===0){
+    allNews.push(
+      {title:"البورصة المصرية تتجاوز 4.3 تريليون جنيه رأس مال سوقي",source:"الأهرام",pubDate:"",desc:"رأس المال السوقي تجاوز 4.3 تريليون جنيه بمتوسط تداولات يومية 10 مليارات."},
+      {title:"EGX30 يحقق +33.5% منذ بداية 2026",source:"AGBI",pubDate:"",desc:"مؤشر EGX30 ارتفع 33.5% منذ بداية العام محققاً أعلى مستوى تاريخي."},
+      {title:"450 ألف مستثمر جديد يدخلون البورصة في 2026",source:"الأهرام",pubDate:"",desc:"عدد المستثمرين الجدد وصل إلى 450 ألف في أول 8 شهور من 2026."},
+      {title:"برنامج الطروحات الحكومية: 20 شركة مدرجة من 30",source:"الأهرام",pubDate:"",desc:"برنامج خصخصة الشركات الحكومية أدرج 20 شركة حتى الآن من 30 مستهدفة."},
+      {title:"S&P تبقي مصر في فئة الأسواق الناشئة",source:"S&P DJI",pubDate:"",desc:"مؤسسة S&P Dow Jones قررت الإبقاء على تصنيف مصر كسوق ناشئ."}
+    );
+  }
+  return allNews.slice(0,10);
+}
+
 function renderMarketStats(){
-  const stats = [
+  const stats=[
     {lbl:"EGX30",val:"53,911",cls:"up",note:"+1.51% اليوم"},
     {lbl:"EGX70",val:"18,233",cls:"up",note:"+2.98% أسبوعياً"},
     {lbl:"EGX100",val:"24,036",cls:"up",note:"+1.86% أسبوعياً"},
@@ -236,50 +274,47 @@ function renderMarketStats(){
     {lbl:"متوسط التداول اليومي",val:"10B",cls:"up",note:"+157% سنوياً"},
     {lbl:"مستثمرون جدد 2026",val:"450K",cls:"up",note:"+50% عن 2025"}
   ];
-  document.getElementById("marketStats").innerHTML = stats.map(s =>
-    '<div class="stat"><div class="lbl">'+s.lbl+'</div><div class="val '+s.cls+'">'+s.val+'</div><div class="lbl">'+s.note+'</div></div>'
-  ).join("");
+  document.getElementById("marketStats").innerHTML=stats.map(s=>'<div class="stat"><div class="lbl">'+s.lbl+'</div><div class="val '+s.cls+'">'+s.val+'</div><div class="lbl">'+s.note+'</div></div>').join("");
 }
 
-function renderNews(){
-  document.getElementById("newsContainer").innerHTML = NEWS.map(function(n){
-    const badgeCls = n.impact==="إيجابي" ? "badge-buy" : n.impact==="سلبي" ? "badge-sell" : "badge-hold";
-    const stars = "★".repeat(n.impactLevel) + "☆".repeat(3-n.impactLevel);
-    return '<div class="news-item"><h4>'+n.title+'<span class="badge '+badgeCls+'">'+n.impact+'</span></h4><p>'+n.summary+'</p><div class="src">'+n.src+' · '+n.date+' · تأثير: '+stars+'</div></div>';
+function renderNews(news){
+  document.getElementById("newsContainer").innerHTML=news.map(function(n){
+    const date=n.pubDate?new Date(n.pubDate).toLocaleDateString("ar-EG"):"";
+    return'<div class="news-item"><h4>'+n.title+'</h4><p>'+(n.desc||"")+'</p><div class="src">'+n.source+(date?" · "+date:"")+'</div></div>';
   }).join("");
 }
 
 function renderIndicesAnalysis(data){
-  const el = document.getElementById("indicesAnalysis");
-  const rows = data.filter(function(d){return d&&d.d&&d.d[0]!=null}).map(function(d){
-    const tk = d.s.replace("EGX:","");
-    const a = tvItem(tk,d.d);
-    const an = analyse(a);
-    const t = trendOf(a);
-    return {tk,a,an,t};
+  const el=document.getElementById("indicesAnalysis");
+  const rows=data.filter(function(d){return d&&d.d&&d.d[0]!=null}).map(function(d){
+    const tk=d.s.replace("EGX:","");
+    const a=tvItem(tk,d.d);
+    const an=analyse(a);
+    const t=trendOf(a);
+    return{tk,a,an,t};
   });
-  const upCount = rows.filter(function(r){return r.a.chg>0}).length;
-  const downCount = rows.filter(function(r){return r.a.chg<0}).length;
-  const strongCount = rows.filter(function(r){return r.an.kind==="فرصة قوية"}).length;
-  const oppCount = rows.filter(function(r){return r.an.kind==="فرصة"||r.an.kind==="فرصة قوية"}).length;
-  let html = '<div class="grid3" style="margin-bottom:16px">';
-  html += '<div class="stat"><div class="lbl">أسهم صاعدة</div><div class="val up">'+upCount+'</div><div class="lbl">من '+rows.length+'</div></div>';
-  html += '<div class="stat"><div class="lbl">أسهم هابطة</div><div class="val down">'+downCount+'</div><div class="lbl">من '+rows.length+'</div></div>';
-  html += '<div class="stat"><div class="lbl">فرص قوية</div><div class="val up">'+strongCount+'</div><div class="lbl">'+oppCount+' فرصة إجمالاً</div></div>';
-  html += '</div>';
-  html += '<h3>ترتيب الأسهم حسب الفرصة</h3>';
-  html += '<table><thead><tr><th>الرمز</th><th>الاسم</th><th>السعر</th><th>التغير</th><th>الاتجاه</th><th>التصنيف</th><th>عائد/مخاطرة</th></tr></thead><tbody>';
-  rows.sort(function(a,b){return ((b.an.rr||-1)-(a.an.rr||-1))});
+  const upCount=rows.filter(function(r){return r.a.chg>0}).length;
+  const downCount=rows.filter(function(r){return r.a.chg<0}).length;
+  const strongCount=rows.filter(function(r){return r.an.kind==="فرصة قوية"}).length;
+  const oppCount=rows.filter(function(r){return r.an.kind==="فرصة"||r.an.kind==="فرصة قوية"}).length;
+  let html='<div class="grid3" style="margin-bottom:16px">';
+  html+='<div class="stat"><div class="lbl">أسهم صاعدة</div><div class="val up">'+upCount+'</div><div class="lbl">من '+rows.length+'</div></div>';
+  html+='<div class="stat"><div class="lbl">أسهم هابطة</div><div class="val down">'+downCount+'</div><div class="lbl">من '+rows.length+'</div></div>';
+  html+='<div class="stat"><div class="lbl">فرص قوية</div><div class="val up">'+strongCount+'</div><div class="lbl">'+oppCount+' فرصة إجمالاً</div></div>';
+  html+='</div>';
+  html+='<h3>ترتيب الأسهم حسب الفرصة</h3>';
+  html+='<table><thead><tr><th>الرمز</th><th>الاسم</th><th>السعر</th><th>التغير</th><th>الاتجاه</th><th>التصنيف</th><th>عائد/مخاطرة</th></tr></thead><tbody>';
+  rows.sort(function(a,b){return((b.an.rr||-1)-(a.an.rr||-1))});
   rows.forEach(function(r){
-    const badgeCls = r.an.kind==="فرصة قوية" ? "badge-strong" : r.an.kind==="فرصة" ? "badge-buy" : r.an.kind==="خطر — اتجاه هابط" ? "badge-sell" : "badge-hold";
-    html += '<tr><td>'+r.tk+'</td><td>'+(NAMES[r.tk]||r.a.en||'')+'</td><td>'+fmt(r.a.px)+'</td><td class="'+cls(r.a.chg)+'">'+pct(r.a.chg)+'</td><td>'+r.t.t+'</td><td><span class="badge '+badgeCls+'">'+r.an.kind+'</span></td><td>'+(r.an.rr?r.an.rr.toFixed(1)+":1":"—")+'</td></tr>';
+    const badgeCls=r.an.kind==="فرصة قوية"?"badge-strong":r.an.kind==="فرصة"?"badge-buy":r.an.kind==="خطر — اتجاه هابط"?"badge-sell":"badge-hold";
+    html+='<tr><td>'+r.tk+'</td><td>'+(NAMES[r.tk]||r.a.en||"")+'</td><td>'+fmt(r.a.px)+'</td><td class="'+cls(r.a.chg)+'">'+pct(r.a.chg)+'</td><td>'+r.t.t+'</td><td><span class="badge '+badgeCls+'">'+r.an.kind+'</span></td><td>'+(r.an.rr?r.an.rr.toFixed(1)+":1":"—")+'</td></tr>';
   });
-  html += '</tbody></table>';
-  el.innerHTML = html;
+  html+='</tbody></table>';
+  el.innerHTML=html;
 }
 
 function renderSectorsAnalysis(){
-  const sectors = [
+  const sectors=[
     {name:"البنوك والمالية",weight:35,trend:"صاعد",note:"COMI يقود القطاع بأرباح قوية"},
     {name:"العقارات والبناء",weight:20,trend:"صاعد",note:"TMGH وOCDI يستفيدين من مشاريع البنية التحتية"},
     {name:"الاتصالات والتكنولوجيا",weight:15,trend:"صاعد",note:"ETEL وEFIH وFWRY تستفيد من التحول الرقمي"},
@@ -287,127 +322,92 @@ function renderSectorsAnalysis(){
     {name:"الطاقة والمرافق",weight:10,trend:"عرضي",note:"AMOC وKORA وTAQA تتأثر بأسعار النفط"},
     {name:"الصناعة والسلع",weight:10,trend:"عرضي",note:"EGAL وABUK وIRON تتأثر بأسعار المواد الخام"}
   ];
-  document.getElementById("sectorsAnalysis").innerHTML = sectors.map(function(s){
-    const badgeCls = s.trend==="صاعد" ? "badge-buy" : s.trend==="هابط" ? "badge-sell" : "badge-hold";
-    return '<div class="card" style="margin-bottom:8px"><h3>'+s.name+'<span class="badge '+badgeCls+'">'+s.trend+'</span></h3><div class="progress"><div class="fill" style="width:'+s.weight+'%;background:var(--accent)"></div></div><p>'+s.note+'</p><div class="meta">الوزن التقريبي: '+s.weight+'%</div></div>';
+  document.getElementById("sectorsAnalysis").innerHTML=sectors.map(function(s){
+    const badgeCls=s.trend==="صاعد"?"badge-buy":s.trend==="هابط"?"badge-sell":"badge-hold";
+    return'<div class="card" style="margin-bottom:8px"><h3>'+s.name+'<span class="badge '+badgeCls+'">'+s.trend+'</span></h3><div class="progress"><div class="fill" style="width:'+s.weight+'%;background:var(--accent)"></div></div><p>'+s.note+'</p><div class="meta">الوزن التقريبي: '+s.weight+'%</div></div>';
   }).join("");
 }
 
 function renderEntryPoints(data){
-  const el = document.getElementById("entryPoints");
-  const rows = data.filter(function(d){return d&&d.d&&d.d[0]!=null}).map(function(d){
-    const tk = d.s.replace("EGX:","");
-    const a = tvItem(tk,d.d);
-    const an = analyse(a);
-    return {tk,a,an};
-  }).filter(function(r){return r.an.kind==="فرصة"||r.an.kind==="فرصة قوية"}).sort(function(a,b){return ((b.an.rr||-1)-(a.an.rr||-1))});
+  const el=document.getElementById("entryPoints");
+  const rows=data.filter(function(d){return d&&d.d&&d.d[0]!=null}).map(function(d){
+    const tk=d.s.replace("EGX:","");
+    const a=tvItem(tk,d.d);
+    const an=analyse(a);
+    return{tk,a,an};
+  }).filter(function(r){return r.an.kind==="فرصة"||r.an.kind==="فرصة قوية"}).sort(function(a,b){return((b.an.rr||-1)-(a.an.rr||-1))});
   if(rows.length===0){
-    el.innerHTML = "<p>لا توجد فرص استثمارية قوية حالياً.</p>";
+    el.innerHTML="<p>لا توجد فرص استثمارية قوية حالياً.</p>";
     return;
   }
-  el.innerHTML = rows.slice(0,10).map(function(r){
-    const badgeCls = r.an.kind==="فرصة قوية" ? "badge-strong" : "badge-buy";
-    return '<div class="card" style="margin-bottom:12px"><h3>'+r.tk+' — '+(NAMES[r.tk]||'')+'<span class="badge '+badgeCls+'">'+r.an.kind+'</span></h3>'
-      + '<div class="entry-box">'
-      + '<div class="row"><span class="lbl">السعر الحالي</span><span class="val">'+fmt(r.a.px)+'</span></div>'
-      + '<div class="row"><span class="lbl">منطقة الدخول</span><span class="val">'+fmt(r.an.entryZone[0])+' – '+fmt(r.an.entryZone[1])+'</span></div>'
-      + '<div class="row"><span class="lbl">وقف الخسارة</span><span class="val down">'+fmt(r.an.stop)+' ('+((r.an.stop/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
-      + '<div class="row"><span class="lbl">الهدف الأول</span><span class="val up">'+fmt(r.an.t1)+' (+'+((r.an.t1/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
-      + '<div class="row"><span class="lbl">الهدف الثاني</span><span class="val up">'+fmt(r.an.t2)+' (+'+((r.an.t2/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
-      + '<div class="row"><span class="lbl">عائد/مخاطرة</span><span class="val '+(r.an.rr>=2?"up":"")+'">'+(r.an.rr?r.an.rr.toFixed(1)+":1":"—")+'</span></div>'
-      + '</div>'
-      + '<ul style="font-size:12px;color:var(--dim);padding-inline-start:18px;margin:8px 0 0">'
-      + r.an.why.map(function(w){return "<li>"+w+"</li>"}).join("")
-      + '</ul></div>';
+  el.innerHTML=rows.slice(0,10).map(function(r){
+    const badgeCls=r.an.kind==="فرصة قوية"?"badge-strong":"badge-buy";
+    return'<div class="card" style="margin-bottom:12px"><h3>'+r.tk+' — '+(NAMES[r.tk]||"")+'<span class="badge '+badgeCls+'">'+r.an.kind+'</span></h3>'
+      +'<div class="entry-box">'
+      +'<div class="row"><span class="lbl">السعر الحالي</span><span class="val">'+fmt(r.a.px)+'</span></div>'
+      +'<div class="row"><span class="lbl">منطقة الدخول</span><span class="val">'+fmt(r.an.entryZone[0])+' – '+fmt(r.an.entryZone[1])+'</span></div>'
+      +'<div class="row"><span class="lbl">وقف الخسارة</span><span class="val down">'+fmt(r.an.stop)+' ('+((r.an.stop/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
+      +'<div class="row"><span class="lbl">الهدف الأول</span><span class="val up">'+fmt(r.an.t1)+' (+'+((r.an.t1/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
+      +'<div class="row"><span class="lbl">الهدف الثاني</span><span class="val up">'+fmt(r.an.t2)+' (+'+((r.an.t2/r.a.px-1)*100).toFixed(1)+'%)</span></div>'
+      +'<div class="row"><span class="lbl">عائد/مخاطرة</span><span class="val '+(r.an.rr>=2?"up":"")+'">'+(r.an.rr?r.an.rr.toFixed(1)+":1":"—")+'</span></div>'
+      +'</div>'
+      +'<ul style="font-size:12px;color:var(--dim);padding-inline-start:18px;margin:8px 0 0">'
+      +r.an.why.map(function(w){return"<li>"+w+"</li>"}).join("")
+      +'</ul></div>';
   }).join("");
 }
 
 function renderInvestPlan(){
-  document.getElementById("investPlan").innerHTML = '<h3>الاستراتيجية العامة</h3>'
-    + '<p>الاستثمار طويل الأمد يعتمد على شراء أسهم شركات قوية عند مستويات سعرية جيدة والاحتفاظ بها لتحقيق عوائد من نمو الأرباح وتوزيعات الأرباح.</p>'
-    + '<h3 style="margin-top:16px">توزيع المحفظة المقترح</h3>'
-    + '<table><thead><tr><th>القطاع</th><th>الوزن</th><th>أسهم مقترحة</th><th>السبب</th></tr></thead><tbody>'
-    + '<tr><td>البنوك</td><td>30%</td><td>COMI, QNBE, HDBK</td><td>أرباح قوية، توزيعات منتظمة</td></tr>'
-    + '<tr><td>العقارات</td><td>20%</td><td>TMGH, OCDI, ORHD</td><td>نمو إيرادات، مشاريع كبرى</td></tr>'
-    + '<tr><td>الاتصالات</td><td>15%</td><td>ETEL, EFIH, FWRY</td><td>تحول رقمي، شمول مالي</td></tr>'
-    + '<tr><td>الرعاية الصحية</td><td>15%</td><td>CLHO, BIOC, PHAR</td><td>نمو أرباح قوي</td></tr>'
-    + '<tr><td>الطاقة</td><td>10%</td><td>AMOC, KORA, TAQA</td><td>تنويع</td></tr>'
-    + '<tr><td>صناعة متنوعة</td><td>10%</td><td>EGAL, ABUK, IRON</td><td>قيمة أقل من السوق</td></tr>'
-    + '</tbody></table>'
-    + '<h3 style="margin-top:16px">قواعد الدخول</h3>'
-    + '<ul style="font-size:13px;color:var(--dim);padding-inline-start:18px">'
-    + '<li>الدخول عند مستويات الدعم أو القريب منها</li>'
-    + '<li>وقف الخسارة تحت أقرب دعم بـ 0.8×ATR على الأقل</li>'
-    + '<li>نسبة العائد للمخاطرة لا تقل عن 2:1</li>'
-    + '<li>عدم الاستثمار بأكثر من 5% من رأس المال في سهم واحد</li>'
-    + '<li>إعادة توزيع المحفظة كل 3 أشهر</li>'
-    + '</ul>'
-    + '<h3 style="margin-top:16px">توقيت الدخول</h3>'
-    + '<p>السوق حالياً في مرحلة تصحيح بعد تحقيق أعلى مستوى تاريخي. هذا يوفر فرص دخول جيدة للمستثمرين طويلي الأمد. يُفضل الدخول على دفعات (3-4 دفعات) لتقليل مخاطر التوقيت.</p>';
+  document.getElementById("investPlan").innerHTML='<h3>الاستراتيجية العامة</h3>'
+    +'<p>الاستثمار طويل الأمد يعتمد على شراء أسهم شركات قوية عند مستويات سعرية جيدة والاحتفاظ بها لتحقيق عوائد من نمو الأرباح وتوزيعات الأرباح.</p>'
+    +'<h3 style="margin-top:16px">توزيع المحفظة المقترح</h3>'
+    +'<table><thead><tr><th>القطاع</th><th>الوزن</th><th>أسهم مقترحة</th><th>السبب</th></tr></thead><tbody>'
+    +'<tr><td>البنوك</td><td>30%</td><td>COMI, QNBE, HDBK</td><td>أرباح قوية، توزيعات منتظمة</td></tr>'
+    +'<tr><td>العقارات</td><td>20%</td><td>TMGH, OCDI, ORHD</td><td>نمو إيرادات، مشاريع كبرى</td></tr>'
+    +'<tr><td>الاتصالات</td><td>15%</td><td>ETEL, EFIH, FWRY</td><td>تحول رقمي، شمول مالي</td></tr>'
+    +'<tr><td>الرعاية الصحية</td><td>15%</td><td>CLHO, BIOC, PHAR</td><td>نمو أرباح قوي</td></tr>'
+    +'<tr><td>الطاقة</td><td>10%</td><td>AMOC, KORA, TAQA</td><td>تنويع</td></tr>'
+    +'<tr><td>صناعة متنوعة</td><td>10%</td><td>EGAL, ABUK, IRON</td><td>قيمة أقل من السوق</td></tr>'
+    +'</tbody></table>'
+    +'<h3 style="margin-top:16px">قواعد الدخول</h3>'
+    +'<ul style="font-size:13px;color:var(--dim);padding-inline-start:18px">'
+    +'<li>الدخول عند مستويات الدعم أو القريب منها</li>'
+    +'<li>وقف الخسارة تحت أقرب دعم بـ 0.8×ATR على الأقل</li>'
+    +'<li>نسبة العائد للمخاطرة لا تقل عن 2:1</li>'
+    +'<li>عدم الاستثمار بأكثر من 5% من رأس المال في سهم واحد</li>'
+    +'<li>إعادة توزيع المحفظة كل 3 أشهر</li>'
+    +'</ul>'
+    +'<h3 style="margin-top:16px">توقيت الدخول</h3>'
+    +'<p>السوق حالياً في مرحلة تصحيح بعد تحقيق أعلى مستوى تاريخي. هذا يوفر فرص دخول جيدة للمستثمرين طويلي الأمد. يُفضل الدخول على دفعات (3-4 دفعات) لتقليل مخاطر التوقيت.</p>';
 }
 
 function renderPortfolio(){
-  const el = document.getElementById("portfolio");
-  el.innerHTML = '<h3>قوالب المحافظ الجاهزة</h3>'
-    + '<div class="chips">'
-    + '<span class="chip on" data-p="conservative">محافظ (منخفض المخاطر)</span>'
-    + '<span class="chip" data-p="balanced">متوازن</span>'
-    + '<span class="chip" data-p="aggressive">جريء (عالي المخاطر)</span>'
-    + '</div>'
-    + '<div id="portfolioContent"></div>';
-  const portfolios = {
-    conservative: {
-      name: "محافظ — للمستثمر الكاره للمخاطر",
-      allocation: [
-        {sector:"البنوك",weight:40,stocks:"COMI, QNBE, HDBK"},
-        {sector:"الاتصالات",weight:25,stocks:"ETEL, EFIH"},
-        {sector:"الرعاية الصحية",weight:20,stocks:"CLHO, BIOC"},
-        {sector:"صناعة مستقرة",weight:15,stocks:"EGAL, ABUK"}
-      ],
-      expectedReturn: "15-20% سنوياً",
-      riskLevel: "منخفض",
-      note: "يركز على الشركات الكبيرة ذات الأرباح المستقرة"
-    },
-    balanced: {
-      name: "متوازن — للمستثمر المتوسط",
-      allocation: [
-        {sector:"البنوك",weight:30,stocks:"COMI, QNBE, HDBK"},
-        {sector:"العقارات",weight:25,stocks:"TMGH, OCDI"},
-        {sector:"الاتصالات",weight:20,stocks:"ETEL, FWRY"},
-        {sector:"الرعاية الصحية",weight:15,stocks:"CLHO, BIOC"},
-        {sector:"طاقة وصناعة",weight:10,stocks:"AMOC, EGAL"}
-      ],
-      expectedReturn: "20-30% سنوياً",
-      riskLevel: "متوسط",
-      note: "توازن بين النمو والاستقرار"
-    },
-    aggressive: {
-      name: "جريء — للمستثمر المحب للمخاطر",
-      allocation: [
-        {sector:"العقارات",weight:30,stocks:"TMGH, OCDI, ORHD"},
-        {sector:"الاتصالات والتقنية",weight:25,stocks:"ETEL, FWRY, EFIH"},
-        {sector:"الرعاية الصحية",weight:20,stocks:"CLHO, BIOC, PHAR"},
-        {sector:"طاقة ومواد",weight:15,stocks:"AMOC, KORA, ABUK"},
-        {sector:"أسهم صغيرة",weight:10,stocks:"FAITA, FERC, BTFH"}
-      ],
-      expectedReturn: "30-50% سنوياً",
-      riskLevel: "مرتفع",
-      note: "يركز على الأسهم ذات النمو المرتفع"
-    }
+  const el=document.getElementById("portfolio");
+  el.innerHTML='<h3>قوالب المحافظ الجاهزة</h3>'
+    +'<div class="chips">'
+    +'<span class="chip on" data-p="conservative">محافظ (منخفض المخاطر)</span>'
+    +'<span class="chip" data-p="balanced">متوازن</span>'
+    +'<span class="chip" data-p="aggressive">جريء (عالي المخاطر)</span>'
+    +'</div>'
+    +'<div id="portfolioContent"></div>';
+  const portfolios={
+    conservative:{name:"محافظ — للمستثمر الكاره للمخاطر",allocation:[{sector:"البنوك",weight:40,stocks:"COMI, QNBE, HDBK"},{sector:"الاتصالات",weight:25,stocks:"ETEL, EFIH"},{sector:"الرعاية الصحية",weight:20,stocks:"CLHO, BIOC"},{sector:"صناعة مستقرة",weight:15,stocks:"EGAL, ABUK"}],expectedReturn:"15-20% سنوياً",riskLevel:"منخفض",note:"يركز على الشركات الكبيرة ذات الأرباح المستقرة"},
+    balanced:{name:"متوازن — للمستثمر المتوسط",allocation:[{sector:"البنوك",weight:30,stocks:"COMI, QNBE, HDBK"},{sector:"العقارات",weight:25,stocks:"TMGH, OCDI"},{sector:"الاتصالات",weight:20,stocks:"ETEL, FWRY"},{sector:"الرعاية الصحية",weight:15,stocks:"CLHO, BIOC"},{sector:"طاقة وصناعة",weight:10,stocks:"AMOC, EGAL"}],expectedReturn:"20-30% سنوياً",riskLevel:"متوسط",note:"توازن بين النمو والاستقرار"},
+    aggressive:{name:"جريء — للمستثمر المحب للمخاطر",allocation:[{sector:"العقارات",weight:30,stocks:"TMGH, OCDI, ORHD"},{sector:"الاتصالات والتقنية",weight:25,stocks:"ETEL, FWRY, EFIH"},{sector:"الرعاية الصحية",weight:20,stocks:"CLHO, BIOC, PHAR"},{sector:"طاقة ومواد",weight:15,stocks:"AMOC, KORA, ABUK"},{sector:"أسهم صغيرة",weight:10,stocks:"FAITA, FERC, BTFH"}],expectedReturn:"30-50% سنوياً",riskLevel:"مرتفع",note:"يركز على الأسهم ذات النمو المرتفع"}
   };
   function showPortfolio(key){
-    const p = portfolios[key];
-    const stockCount = p.allocation.reduce(function(s,a){return s+a.stocks.split(",").length},0);
-    document.getElementById("portfolioContent").innerHTML = '<h3 style="margin-top:16px">'+p.name+'</h3>'
-      + '<div class="grid3" style="margin:12px 0">'
-      + '<div class="stat"><div class="lbl">العائد المتوقع</div><div class="val up">'+p.expectedReturn+'</div></div>'
-      + '<div class="stat"><div class="lbl">مستوى المخاطر</div><div class="val">'+p.riskLevel+'</div></div>'
-      + '<div class="stat"><div class="lbl">عدد الأسهم</div><div class="val">'+stockCount+'</div></div>'
-      + '</div>'
-      + '<table><thead><tr><th>القطاع</th><th>الوزن</th><th>الأسهم</th></tr></thead><tbody>'
-      + p.allocation.map(function(a){return "<tr><td>"+a.sector+"</td><td>"+a.weight+"%</td><td>"+a.stocks+"</td></tr>"}).join("")
-      + '</tbody></table>'
-      + '<p style="font-size:12px;color:var(--dim);margin-top:12px">'+p.note+'</p>';
+    const p=portfolios[key];
+    const stockCount=p.allocation.reduce(function(s,a){return s+a.stocks.split(",").length},0);
+    document.getElementById("portfolioContent").innerHTML='<h3 style="margin-top:16px">'+p.name+'</h3>'
+      +'<div class="grid3" style="margin:12px 0">'
+      +'<div class="stat"><div class="lbl">العائد المتوقع</div><div class="val up">'+p.expectedReturn+'</div></div>'
+      +'<div class="stat"><div class="lbl">مستوى المخاطر</div><div class="val">'+p.riskLevel+'</div></div>'
+      +'<div class="stat"><div class="lbl">عدد الأسهم</div><div class="val">'+stockCount+'</div></div>'
+      +'</div>'
+      +'<table><thead><tr><th>القطاع</th><th>الوزن</th><th>الأسهم</th></tr></thead><tbody>'
+      +p.allocation.map(function(a){return"<tr><td>"+a.sector+"</td><td>"+a.weight+"%</td><td>"+a.stocks+"</td></tr>"}).join("")
+      +'</tbody></table>'
+      +'<p style="font-size:12px;color:var(--dim);margin-top:12px">'+p.note+'</p>';
   }
   document.querySelectorAll(".chip").forEach(function(c){
     c.addEventListener("click",function(){
@@ -420,22 +420,22 @@ function renderPortfolio(){
 }
 
 async function load(){
-  document.getElementById("stamp").textContent = "جارٍ تحميل البيانات...";
+  document.getElementById("stamp").textContent="جارٍ تحميل البيانات...";
   try{
-    const data = await fetchMarket();
+    const data=await fetchMarket();
+    const news=await fetchLiveNews();
     renderMarketStats();
-    renderNews();
+    renderNews(news);
     renderIndicesAnalysis(data);
     renderSectorsAnalysis();
     renderEntryPoints(data);
     renderInvestPlan();
     renderPortfolio();
-    const t = new Date(Date.now()+3*3600000).toISOString().slice(11,16);
-    document.getElementById("stamp").textContent = "آخر تحديث "+t+" بتوقيت القاهرة · البيانات من TradingView مباشرة";
+    const t=new Date(Date.now()+3*3600000).toISOString().slice(11,16);
+    document.getElementById("stamp").textContent="آخر تحديث "+t+" بتوقيت القاهرة · البيانات والأخبار تتحدث تلقائياً";
   }catch(e){
-    document.getElementById("stamp").textContent = "تعذر تحميل البيانات — راجع الاتصال بالإنترنت";
+    document.getElementById("stamp").textContent="تعذر تحميل البيانات — راجع الاتصال بالإنترنت";
     renderMarketStats();
-    renderNews();
     renderSectorsAnalysis();
     renderInvestPlan();
     renderPortfolio();
@@ -444,6 +444,8 @@ async function load(){
 
 document.getElementById("reload").addEventListener("click",load);
 load();
+// Auto-refresh every 5 minutes
+setInterval(load,5*60*1000);
 </script>
 </body>
 </html>

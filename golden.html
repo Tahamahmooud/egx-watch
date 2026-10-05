@@ -186,6 +186,8 @@ async function load(){
 }
 document.getElementById("reload").addEventListener("click",load);
 load();
+// Auto-refresh every 5 minutes
+setInterval(load,5*60*1000);
 </script>
 </body>
 </html>
